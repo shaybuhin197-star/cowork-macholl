@@ -125,9 +125,15 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 .ah-back:hover{color:var(--text);background:rgba(255,255,255,.1)}
 .ah-download{background:linear-gradient(135deg,#6C63FF,#818CF8);color:#fff;box-shadow:0 2px 12px rgba(108,99,255,.35)}
 .ah-download:hover{opacity:.88;transform:translateY(-1px)}
-.ah-publish{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;box-shadow:0 2px 12px rgba(34,197,94,.35)}
-.ah-publish:hover{opacity:.88;transform:translateY(-1px)}
-.ah-publish:disabled{opacity:.5;cursor:wait}
+.ah-publish{
+  background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;
+  box-shadow:0 2px 16px rgba(34,197,94,.45);
+  font-size:14px;padding:9px 20px;
+  animation:pub-pulse 2.5s ease-in-out infinite;
+}
+@keyframes pub-pulse{0%,100%{box-shadow:0 2px 16px rgba(34,197,94,.45)}50%{box-shadow:0 4px 28px rgba(34,197,94,.75),0 0 0 4px rgba(34,197,94,.12)}}
+.ah-publish:hover{opacity:.92;transform:translateY(-2px);animation:none;box-shadow:0 6px 32px rgba(34,197,94,.6)}
+.ah-publish:disabled{opacity:.5;cursor:wait;animation:none}
 .ah-copy{background:rgba(255,255,255,.06);color:var(--accent);border:1px solid var(--border)}
 .ah-copy:hover{background:rgba(108,99,255,.15)}
 
@@ -246,16 +252,20 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 /* ─ Loading state ─ */
 .loading-state{
   display:none;flex-direction:column;align-items:center;justify-content:center;
-  gap:20px;padding:48px 24px;text-align:center;flex:1;
+  gap:16px;padding:48px 24px;text-align:center;flex:1;
 }
 .loading-state.show{display:flex}
 .loader{
-  width:48px;height:48px;border:3px solid rgba(255,255,255,.08);
+  width:52px;height:52px;border:3px solid rgba(255,255,255,.06);
   border-top-color:var(--accent);border-radius:50%;
-  animation:spin .8s linear infinite;
+  animation:spin .75s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-state p{font-size:15px;font-weight:600;color:var(--muted)}
+.loading-state p{font-size:14px;font-weight:600;color:var(--text);min-height:22px;transition:opacity .3s}
+.loading-bar-wrap{width:180px;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.loading-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;animation:load-progress 18s linear forwards}
+@keyframes load-progress{0%{width:3%}60%{width:75%}90%{width:90%}100%{width:96%}}
+.loading-hint{font-size:11px;color:var(--muted);margin-top:4px;opacity:.6}
 
 /* ─ Chat panel ─ */
 .chat-panel{border-bottom:2px solid var(--border);background:rgba(255,255,255,.015)}
@@ -947,26 +957,26 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
     <!-- filled by JS -->
   </div>
   <div class="wlc-logo">⚡ Cowork <span>| מחולל דפי נחיתה</span></div>
-  <div class="wlc-badge">✨ חינמי לחלוטין</div>
-  <h1 class="wlc-title">דף נחיתה מותאם<br/><em>ב-5 דקות עבודה</em></h1>
-  <p class="wlc-sub">בנה דף נחיתה מקצועי עם AI — בחר איך להתחיל</p>
+  <h1 class="wlc-title">דף נחיתה מקצועי<br/><em>ב-5 דקות, עם AI</em></h1>
+  <p class="wlc-sub">ענה על כמה שאלות — ה-AI כותב לך קופי מלא, בוחר עיצוב ובונה את הדף. חינמי לגמרי.</p>
+
   <div class="wlc-cards">
 
-    <!-- ★ QUIZ — FEATURED (preferred) -->
+    <!-- ★ QUIZ — FEATURED (main CTA) -->
     <div class="wlc-quiz-feat" onclick="startQuiz()">
       <div class="wlc-quiz-feat-top">
-        <span class="wlc-icon">📋</span>
-        <h3>שאלון חכם לבניית דף נחיתה</h3>
-        <span class="wlc-popular">מומלץ!</span>
+        <span class="wlc-icon">🚀</span>
+        <h3>בנה את הדף שלי עכשיו</h3>
+        <span class="wlc-popular">הכי מהיר</span>
       </div>
-      <p>ענה על כמה שאלות פשוטות — ה-AI בונה לך דף נחיתה מלא ומותאם אישית. הכי מהיר והכי טוב.</p>
+      <p>ענה על כמה שאלות — ה-AI כותב לך את כל הקופי, בוחר עיצוב, ובונה דף נחיתה מלא ומותאם אישית.</p>
       <div class="wlc-quiz-feat-steps">
-        <span class="qz-feat-step">📝 17 שאלות</span>
-        <span class="qz-feat-step">🤖 AI כותב קופי</span>
-        <span class="qz-feat-step">🎨 בחירת עיצוב</span>
         <span class="qz-feat-step">⚡ 5 דקות</span>
+        <span class="qz-feat-step">🤖 AI כותב הכל</span>
+        <span class="qz-feat-step">🎨 עיצוב מקצועי</span>
+        <span class="qz-feat-step">🌐 לינק לפרסום</span>
       </div>
-      <div class="wlc-card-btn" style="background:rgba(108,99,255,.35);color:#fff"><span>יאללה נתחיל ←</span><span>✨</span></div>
+      <div class="wlc-card-btn" style="background:rgba(108,99,255,.35);color:#fff"><span>יאללה, מתחילים ←</span><span>✨</span></div>
     </div>
 
     <!-- Bottom row: map + existing page -->
@@ -1073,7 +1083,9 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
     <!-- ── State 2: Loading ── -->
     <div id="build-loading" class="loading-state">
       <div class="loader"></div>
-      <p id="loading-msg">מנתח את המפה...</p>
+      <p id="loading-msg">מכין את הדף שלך...</p>
+      <div class="loading-bar-wrap"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
+      <span class="loading-hint">ה-AI כותב עבורך קופי מלא — זה לוקח כ-15 שניות</span>
     </div>
 
     <!-- ── State 3: Editor ── -->
@@ -1910,6 +1922,12 @@ async function _renderAdminPagesView(username,displayName){
   } else {
     document.getElementById('screen-welcome').style.display='none';
     document.getElementById('screen-login').style.display='flex';
+    // First-time visitors see Register tab first
+    const hasVisited=localStorage.getItem('lpgen_has_visited');
+    if(!hasVisited){
+      switchLoginTab('register');
+      localStorage.setItem('lpgen_has_visited','1');
+    }
   }
 })();
 
@@ -2189,20 +2207,26 @@ async function generateFromMap(){
   // Show loading
   document.getElementById('build-input').style.display='none';
   document.getElementById('build-loading').classList.add('show');
+  // Reset progress bar animation
+  const bar=document.getElementById('loading-bar-fill');
+  if(bar){bar.style.animation='none';bar.offsetHeight;bar.style.animation='';}
 
   const msgs=[
-    'קורא את המפה הפסיכולוגית...',
-    'מזהה כאבים וחלומות...',
-    'כותב כותרות...',
-    'בונה את הסיפור האישי...',
-    'מגדיר קריטריוני לקוח...',
-    'מלטש את הקופי...',
-    'כמעט מוכן...',
+    {t:'🔍 קורא את המפה הפסיכולוגית שלך...'},
+    {t:'💊 מזהה את הכאב האמיתי של הלקוח...'},
+    {t:'✍️ כותב כותרת שתגרום לאנשים לעצור...'},
+    {t:'📖 בונה את הסיפור האישי שלך...'},
+    {t:'🎯 מגדיר את קהל היעד האידיאלי...'},
+    {t:'💡 מנסח את הפתרון הייחודי שלך...'},
+    {t:'⭐ כותב המלצות ושאלות נפוצות...'},
+    {t:'🎨 מתאים את הסגנון לתחום שלך...'},
+    {t:'✨ מלטש את הקופי לגרסה הסופית...'},
+    {t:'🚀 כמעט מוכן — עוד שנייה...'},
   ];
   let mi=0;
   const msgEl=document.getElementById('loading-msg');
-  msgEl.textContent=msgs[0];
-  const interval=setInterval(()=>{mi=Math.min(mi+1,msgs.length-1);msgEl.textContent=msgs[mi];},2000);
+  msgEl.textContent=msgs[0].t;
+  const interval=setInterval(()=>{mi=Math.min(mi+1,msgs.length-1);msgEl.textContent=msgs[mi].t;},1800);
 
   let aiSuccess=false;
   let aiError=null;
@@ -2238,9 +2262,49 @@ async function generateFromMap(){
 
   refreshBuildPreview();
   _showMobToggle(true);
+  // WOW moment — confetti burst
+  _fireConfetti();
   // Show "ready to publish?" banner
-  const pubBanner=document.getElementById('pub-ready-banner-inner');
-  if(pubBanner)pubBanner.style.display='flex';
+  setTimeout(()=>{
+    const pubBanner=document.getElementById('pub-ready-banner-inner');
+    if(pubBanner)pubBanner.style.display='flex';
+  },1200);
+}
+
+/* ── Confetti WOW ── */
+function _fireConfetti(){
+  try{
+    const canvas=document.createElement('canvas');
+    canvas.style.cssText='position:fixed;inset:0;z-index:99999;pointer-events:none;width:100%;height:100%';
+    document.body.appendChild(canvas);
+    const ctx=canvas.getContext('2d');
+    canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+    const colors=['#818CF8','#6C63FF','#22C55E','#F59E0B','#EC4899','#ffffff','#A5B4FC'];
+    const particles=Array.from({length:120},()=>({
+      x:Math.random()*canvas.width,y:-20,
+      vx:(Math.random()-0.5)*6,vy:Math.random()*4+3,
+      r:Math.random()*6+3,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*Math.PI*2,vrot:(Math.random()-0.5)*0.2,
+      shape:Math.random()>.5?'rect':'circle'
+    }));
+    let frame=0;
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach(p=>{
+        p.x+=p.vx;p.y+=p.vy;p.vy+=0.12;p.rot+=p.vrot;
+        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+        ctx.fillStyle=p.color;ctx.globalAlpha=Math.max(0,1-frame/90);
+        if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}
+        else{ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);}
+        ctx.restore();
+      });
+      frame++;
+      if(frame<110)requestAnimationFrame(draw);
+      else{canvas.remove();}
+    }
+    draw();
+  }catch(e){}
 }
 
 /* Fill all form fields from AI-generated JSON */
@@ -3530,25 +3594,28 @@ ${sec('timer')?timerHTML:''}
 
 ${heroHTML}
 
-${sec('qualify')&&d.forYou.length?`<!-- FOR YOU -->
-<section class="qualify-section">
-<div class="container">
-  <h2 class="qualify-title fade-up">הדף הזה בשבילך אם...</h2>
-  <div class="qualify-grid">${forYouHTML}</div>
-</div>
-</section>`:''}
-
-${sec('pain')&&d.pains.length?`<!-- PAIN -->
-<section class="pain-section sec">
+<!-- ① PAIN — first thing after hero: "אתה מכיר את המצב הזה?" -->
+${sec('pain')&&d.pains.length?`<section class="pain-section sec">
 <div class="container">
   ${stripe}
-  <h2 class="sec-title fade-up">${esc(d.pain_title)}</h2>
+  <h2 class="sec-title fade-up">${esc(d.pain_title||'זה נשמע מוכר?')}</h2>
+  <p style="font-size:16px;color:var(--muted);margin-bottom:32px;max-width:560px" class="fade-up">אם אחד מהדברים האלה מדויק לך — אתה בדיוק במקום הנכון.</p>
   <div class="pain-grid">${painCards}</div>
 </div>
 </section>`:''}
 
-${sec('story')&&d.story?`<!-- STORY -->
-<section class="story-section">
+<!-- ② OLD TOOLS — למה מה שניסית עד עכשיו לא עבד -->
+${sec('tools')&&d.tools.length?`<section class="tools-section">
+<div class="container">
+  ${stripe}
+  <h2 class="sec-title fade-up">ניסית כבר הכל — ועדיין תקוע?</h2>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:32px" class="fade-up">הבעיה היא לא בך. הכלים שכולם ממליצים עליהם פשוט לא מתאימים למצבך.</p>
+  <div class="tools-grid">${toolCards}</div>
+</div>
+</section>`:''}
+
+<!-- ③ STORY — מי אני ולמה דווקא אני -->
+${sec('story')&&d.story?`<section class="story-section">
 <div class="container">
   ${stripe}
   <div class="story-box fade-up">
@@ -3559,73 +3626,50 @@ ${sec('story')&&d.story?`<!-- STORY -->
 </div>
 </section>`:''}
 
-${sec('method')&&(d.method_name||d.steps.length)?`<!-- METHOD -->
-<section class="method-section">
+<!-- ④ METHOD — הפתרון: מה אני מציע וכיצד זה עובד -->
+${sec('method')&&(d.method_name||d.steps.length)?`<section class="method-section">
 <div class="container">
   ${stripe}
+  <p style="font-size:13px;font-weight:700;color:var(--primary);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px" class="fade-up">הפתרון שפיתחתי</p>
   ${d.method_name?`<h2 class="method-name-big fade-up">${esc(d.method_name)}</h2>`:''}
   ${d.method_desc?`<p class="method-desc-text fade-up">${esc(d.method_desc)}</p>`:''}
   ${d.steps.length?`<div class="steps-grid">${stepsHTML}</div>`:''}
 </div>
 </section>`:''}
 
-${sec('transform')&&(d.aItems.length||d.bItems.length)?`<!-- TRANSFORM -->
-<section id="transform" class="transform-section">
+<!-- ⑤ TRANSFORM — מצב A לעומת מצב B -->
+${sec('transform')&&(d.aItems.length||d.bItems.length)?`<section id="transform" class="transform-section">
 <div class="container">
   ${stripe}
-  <h2 class="sec-title fade-up">${esc(d.transform_title)}</h2>
+  <h2 class="sec-title fade-up">${esc(d.transform_title||'איפה אתה היום — לאן אתה הולך')}</h2>
   <div class="tr-wrap fade-up">
-    <div class="tr-card a-card"><div class="tr-label">📍 היום — מצב A</div>${aList}</div>
+    <div class="tr-card a-card"><div class="tr-label">📍 היום</div>${aList}</div>
     <div class="tr-mid">→</div>
-    <div class="tr-card b-card"><div class="tr-label">🎯 אחרי — מצב B</div>${bList}</div>
+    <div class="tr-card b-card"><div class="tr-label">🎯 אחרי שנעבוד ביחד</div>${bList}</div>
   </div>
 </div>
 </section>`:''}
 
-${sec('meeting')&&d.meetingSteps.length?`<!-- MEETING -->
-<section class="meeting-section">
+<!-- ⑥ VIDEO — סרטון (אם קיים) — אחרי הסבר הפתרון -->
+${sec('video')?videoHTML:''}
+
+<!-- ⑦ FOR YOU / NOT FOR YOU — האם זה מתאים לך -->
+${sec('qualify')&&(d.forYou.length||d.notForYou.length)?`<section class="qualify-section">
 <div class="container">
-  ${stripe}
-  <h2 class="sec-title fade-up">${esc(d.meeting_title||'מה קורה בפגישה?')}</h2>
-  <div class="meeting-steps">${meetingStepsHTML}</div>
-  <button onclick="showThankYou()" class="btn-primary fade-up" style="border:none;cursor:pointer">${meetingCta}</button>
-  <p class="meeting-free-note">ללא עלות · ללא מחויבות</p>
+  ${d.forYou.length?`<h2 class="qualify-title fade-up">זה בדיוק בשבילך אם...</h2>
+  <div class="qualify-grid" style="margin-bottom:${d.notForYou.length?'48px':'0'}">${forYouHTML}</div>`:''}
+  ${d.notForYou.length?`<h2 class="qualify-title fade-up" style="margin-top:${d.forYou.length?'48px':'0'}">זה לא המקום הנכון לך אם...</h2>
+  <p class="qualify-sub fade-up">אני עובד עם אנשים ספציפיים — כדי שהתוצאות יהיו אמיתיות</p>
+  <div class="qualify-grid">${notForYouHTML}</div>`:''}
 </div>
 </section>`:''}
 
-${sec('testimonials')&&d.testis.length?`<!-- TESTIS -->
-<section class="testi-section">
+<!-- ⑧ OFFER — מה בדיוק מקבלים -->
+${sec('offer')&&(d.price||d.offerItems.length)?`<section class="offer-section">
 <div class="container">
   ${stripe}
-  <h2 class="sec-title fade-up">מה לקוחות אומרים</h2>
-  <div class="testi-grid">${testiCards}</div>
-</div>
-</section>`:''}
-
-${sec('tools')&&d.tools.length?`<!-- OLD TOOLS -->
-<section class="tools-section">
-<div class="container">
-  ${stripe}
-  <h2 class="sec-title fade-up">ולמה זה לא עבד</h2>
-  <div class="tools-grid">${toolCards}</div>
-</div>
-</section>`:''}
-
-${sec('qualify')&&d.notForYou.length?`<!-- NOT FOR YOU -->
-<section class="qualify-section" style="background:var(--bg)">
-<div class="container">
-  ${stripe}
-  <h2 class="qualify-title fade-up">זה לא בשבילך אם...</h2>
-  <p class="qualify-sub fade-up">אני מדבר עם אנשים ספציפיים בלבד — שמוכנים באמת לעשות שינוי</p>
-  <div class="qualify-grid">${notForYouHTML}</div>
-</div>
-</section>`:''}
-
-${sec('offer')&&(d.price||d.offerItems.length)?`<!-- OFFER -->
-<section class="offer-section">
-<div class="container">
-  ${stripe}
-  <h2 class="sec-title fade-up" style="text-align:center">מה מקבלים</h2>
+  <h2 class="sec-title fade-up" style="text-align:center">מה בדיוק כלול</h2>
+  <p style="text-align:center;font-size:15px;color:var(--muted);margin-bottom:32px" class="fade-up">הכל שקוף — אתה יודע בדיוק מה אתה מקבל לפני שאתה מחליט</p>
   <div class="offer-card fade-up">
     ${d.offerItems.length?`<div class="offer-list">${offerList}</div>`:''}
     ${d.price?`<div class="offer-price-label">השקעה:</div><div class="offer-price">${esc(d.price)}</div>${d.price_note?`<div class="offer-price-note">${esc(d.price_note)}</div>`:''}`:''}
@@ -3635,26 +3679,48 @@ ${sec('offer')&&(d.price||d.offerItems.length)?`<!-- OFFER -->
 </div>
 </section>`:''}
 
-${sec('faq')&&d.faqs.length?`<!-- FAQ -->
-<section class="faq-section">
+<!-- ⑨ TESTIMONIALS — הוכחה חברתית -->
+${sec('testimonials')&&d.testis.length?`<section class="testi-section">
 <div class="container">
   ${stripe}
-  <h2 class="sec-title fade-up">שאלות ותשובות</h2>
+  <h2 class="sec-title fade-up">הם כבר עשו את הצעד — הנה מה שהם אומרים</h2>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:36px" class="fade-up">תוצאות אמיתיות מאנשים אמיתיים — לא סיסמאות שיווקיות</p>
+  <div class="testi-grid">${testiCards}</div>
+</div>
+</section>`:''}
+
+<!-- ⑩ HOW IT WORKS — מה קורה בפגישה/תהליך -->
+${sec('meeting')&&d.meetingSteps.length?`<section class="meeting-section">
+<div class="container">
+  ${stripe}
+  <h2 class="sec-title fade-up">${esc(d.meeting_title||'איך זה עובד — 3 צעדים פשוטים')}</h2>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:8px" class="fade-up">אני עשיתי הכל כמה שיותר פשוט — כי לזמן שלך יש ערך</p>
+  <div class="meeting-steps">${meetingStepsHTML}</div>
+  <button onclick="showThankYou()" class="btn-primary fade-up" style="border:none;cursor:pointer;margin-top:8px">${meetingCta}</button>
+  <p class="meeting-free-note">ללא עלות · ללא מחויבות · 30 דקות בלבד</p>
+</div>
+</section>`:''}
+
+<!-- ⑪ FAQ — שאלות שמונעות את ההחלטה -->
+${sec('faq')&&d.faqs.length?`<section class="faq-section">
+<div class="container">
+  ${stripe}
+  <h2 class="sec-title fade-up">שאלות שעולות הרבה</h2>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:32px" class="fade-up">ענה על כל השאלות לפני שמחליטים — שאף אחד לא ישאיר בראש שאלה פתוחה</p>
   <div class="faq-list">${faqHTML}</div>
 </div>
 </section>`:''}
 
-${sec('video')?videoHTML:''}
-
-<!-- FINAL CTA -->
+<!-- ⑫ FINAL CTA — קריאה אחת לפעולה, ברורה ופשוטה -->
 <section id="cta" class="cta-section">
 <div class="container">
   ${stripe}
   <h2 class="cta-title fade-up">${esc(d.final_cta)}</h2>
   <p class="cta-sub fade-up">${esc(d.final_cta_sub)}</p>
-  <button onclick="showThankYou()" class="btn-primary fade-up" style="font-size:17px;padding:18px 44px;border:none;cursor:pointer">📲 ${meetingCta}</button>
-  ${sec('timer')&&d.urgency?`<p class="cta-free-note" style="margin-top:18px;color:#fca5a5">${esc(d.urgency)}</p>`:''}
-  <p class="cta-free-note">ללא עלות · ללא מחויבות</p>
+  <button onclick="showThankYou()" class="btn-primary fade-up" style="font-size:18px;padding:20px 52px;border:none;cursor:pointer;margin-bottom:16px">📲 ${meetingCta}</button>
+  <br/>
+  ${sec('timer')&&d.urgency?`<p class="cta-free-note" style="color:#fca5a5;margin-bottom:6px">${esc(d.urgency)}</p>`:''}
+  <p class="cta-free-note">ללא עלות · ללא מחויבות · אפשר לבטל בכל עת</p>
 </div>
 </section>
 
