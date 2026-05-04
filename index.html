@@ -135,40 +135,73 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 .app-screen{display:none;margin-top:58px;height:calc(100vh - 58px)}
 .app-screen.active{display:grid;grid-template-columns:400px 1fr}
 
-/* ── Mobile toggle bar ── */
-#mob-view-toggle{display:none}
+/* ── Mobile bottom tab bar (hidden on desktop) ── */
+#mob-tab-bar{display:none}
+#mob-view-toggle{display:none}/* legacy — kept for compat */
+
 @media(max-width:860px){
-  .app-screen.active{grid-template-columns:1fr;margin-top:100px;height:calc(100vh - 100px)}
-  .preview-pane{display:none}
-  .preview-pane.mob-show{display:flex!important;position:fixed;inset:100px 0 0 0;z-index:150;height:calc(100vh - 100px)!important}
+  /* Header: compact single row on mobile */
+  .app-header{padding:0 10px;gap:6px;height:52px;flex-wrap:nowrap;overflow:hidden}
+  .ah-logo{font-size:12px;min-width:0;white-space:nowrap}
+  .ah-success{font-size:11px;padding:4px 8px;flex-shrink:1;min-width:0}
+  .ah-actions{display:flex;flex-wrap:nowrap;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:1}
+  .ah-actions::-webkit-scrollbar{display:none}
+  .ah-btn{padding:5px 9px;font-size:11px;white-space:nowrap;flex-shrink:0}
+  /* Screen layout: full width, margin for 52px header + 60px bottom bar */
+  .app-screen{margin-top:52px;height:calc(100vh - 52px - 60px)}
+  .app-screen.active{grid-template-columns:1fr}
+  /* Sidebar fills the screen on mobile */
+  .app-sidebar{height:100%;overflow-y:auto}
+  /* Preview pane: hidden by default on mobile, shown as overlay when active */
+  .preview-pane{display:none!important}
+  .preview-pane.mob-show{
+    display:flex!important;
+    position:fixed;
+    top:52px;left:0;right:0;bottom:60px;
+    z-index:300;
+    height:auto!important;
+  }
+  /* Sidebar hidden when preview is shown */
   .app-sidebar.mob-hide{display:none!important}
-  #mob-view-toggle{
-    display:flex;position:fixed;top:58px;left:0;right:0;z-index:199;
-    background:rgba(8,11,20,.97);border-bottom:1px solid var(--border);
-    height:42px;
+  /* Bottom tab bar */
+  #mob-tab-bar{
+    display:flex;
+    position:fixed;bottom:0;left:0;right:0;z-index:400;
+    height:60px;
+    background:rgba(8,11,20,.98);
+    border-top:1px solid var(--border);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
   }
-  .mvt-btn{
-    flex:1;border:none;background:transparent;color:var(--muted);
-    font-family:'Heebo',sans-serif;font-size:13px;font-weight:700;
-    cursor:pointer;transition:.2s;border-bottom:2px solid transparent;
+  .mtb-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:none;background:transparent;color:var(--muted);
+    font-family:'Heebo',sans-serif;cursor:pointer;gap:3px;
+    transition:.2s;position:relative;
+    -webkit-tap-highlight-color:transparent;
   }
-  .mvt-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(108,99,255,.07)}
-  /* make header buttons wrap nicely on mobile */
-  .app-header{flex-wrap:wrap;height:auto;min-height:58px;padding:8px 12px;gap:6px}
-  .ah-logo{font-size:13px}
-  .ah-btn{padding:6px 10px;font-size:12px}
-  .ah-actions{flex-wrap:wrap;gap:5px}
-  /* sidebar scroll area fill on mobile */
-  .app-sidebar{height:100%}
-  /* login card full width on mobile */
+  .mtb-btn.active{color:var(--accent)}
+  .mtb-btn.active::before{
+    content:'';position:absolute;top:0;left:20%;right:20%;height:2px;
+    background:var(--accent);border-radius:0 0 4px 4px;
+  }
+  .mtb-icon{font-size:20px;line-height:1}
+  .mtb-label{font-size:10px;font-weight:700;letter-spacing:.02em}
+  /* Publish tab special color */
+  .mtb-btn.pub-tab{color:#22c55e}
+  .mtb-btn.pub-tab.active{color:#4ade80}
+  .mtb-btn.pub-tab.active::before{background:#22c55e}
+  /* Login card full width on mobile */
   .login-card{max-width:100%!important;padding:28px 20px!important}
-  /* welcome screen cards stacked */
+  /* Welcome screen cards stacked */
   .wlc-cards-split{grid-template-columns:1fr!important}
-  /* textarea bigger touch area */
+  /* Textarea bigger touch area */
   #map-textarea,#edit-map-textarea{min-height:160px}
-  /* user bar compact on mobile */
-  .user-info-bar{position:relative;top:auto;left:auto;flex-wrap:wrap;padding:8px 12px;width:100%;background:rgba(8,11,20,.6);border-bottom:1px solid var(--border)}
-  .uib-btn{font-size:11px;padding:4px 9px}
+  /* User bar compact on mobile */
+  .user-info-bar{position:relative;top:auto;left:auto;flex-wrap:wrap;padding:6px 12px;width:100%;background:rgba(8,11,20,.6);border-bottom:1px solid var(--border)}
+  .uib-btn{font-size:10px;padding:3px 8px}
+  /* Add padding at bottom of sidebar so content not cut by tab bar */
+  #build-sidebar,#edit-sidebar{padding-bottom:70px}
 }
 
 /* ═══ SIDEBAR ═══ */
@@ -1004,10 +1037,24 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
   </div>
 </header>
 
-<!-- ═══ MOBILE VIEW TOGGLE (only visible on phones) ═══ -->
-<div id="mob-view-toggle">
-  <button class="mvt-btn active" id="mvt-edit" onclick="mobSetView('edit')">✏️ עריכה</button>
-  <button class="mvt-btn" id="mvt-preview" onclick="mobSetView('preview')">👁 תצוגה מקדימה</button>
+<!-- ═══ MOBILE BOTTOM TAB BAR (only visible on phones) ═══ -->
+<div id="mob-tab-bar">
+  <button class="mtb-btn active" id="mtb-edit" onclick="mobSetView('edit')">
+    <span class="mtb-icon">✏️</span>
+    <span class="mtb-label">עריכה</span>
+  </button>
+  <button class="mtb-btn" id="mtb-preview" onclick="mobSetView('preview')">
+    <span class="mtb-icon">👁</span>
+    <span class="mtb-label">צפה בדף</span>
+  </button>
+  <button class="mtb-btn pub-tab" id="mtb-publish" onclick="openPubModal()">
+    <span class="mtb-icon">🚀</span>
+    <span class="mtb-label">פרסם</span>
+  </button>
+  <button class="mtb-btn" id="mtb-save" onclick="openMyPagesFromBuild()">
+    <span class="mtb-icon">💾</span>
+    <span class="mtb-label">שמור</span>
+  </button>
 </div>
 
 <div class="app-screen" id="screen-build" style="display:none">
@@ -1887,31 +1934,27 @@ function startBuild(){
   _showMobToggle(true);
 }
 
-/* ── Mobile view toggle ── */
+/* ── Mobile bottom tab bar ── */
 function _showMobToggle(show){
-  const t=document.getElementById('mob-view-toggle');
-  if(t)t.style.display=show?'':'none';
-  if(show)mobSetView('edit'); // reset to edit tab when entering build
+  const bar=document.getElementById('mob-tab-bar');
+  if(bar)bar.style.display=show?'':'none';
+  if(show)mobSetView('edit');
 }
 function mobSetView(view){
   const sidebar=document.getElementById('build-sidebar');
   const previewPane=document.getElementById('build-preview-pane');
-  const btnEdit=document.getElementById('mvt-edit');
-  const btnPreview=document.getElementById('mvt-preview');
   if(!sidebar||!previewPane)return;
-  if(view==='edit'){
-    sidebar.classList.remove('mob-hide');
-    previewPane.classList.remove('mob-show');
-    if(btnEdit)btnEdit.classList.add('active');
-    if(btnPreview)btnPreview.classList.remove('active');
-  } else {
-    sidebar.classList.add('mob-hide');
-    previewPane.classList.add('mob-show');
-    if(btnPreview)btnPreview.classList.add('active');
-    if(btnEdit)btnEdit.classList.remove('active');
-    // Re-render preview so iframe loads fresh on first switch
-    refreshBuildPreview&&refreshBuildPreview();
-  }
+  const isPreview=view==='preview';
+  // Sidebar / pane visibility
+  sidebar.classList.toggle('mob-hide',isPreview);
+  previewPane.classList.toggle('mob-show',isPreview);
+  // Tab highlights
+  ['edit','preview'].forEach(v=>{
+    const btn=document.getElementById('mtb-'+v);
+    if(btn)btn.classList.toggle('active',v===view);
+  });
+  // Refresh iframe when first showing preview
+  if(isPreview)refreshBuildPreview&&refreshBuildPreview();
 }
 
 function startQuiz(){
