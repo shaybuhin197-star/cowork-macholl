@@ -134,7 +134,42 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 /* ═══ APP LAYOUT ═══ */
 .app-screen{display:none;margin-top:58px;height:calc(100vh - 58px)}
 .app-screen.active{display:grid;grid-template-columns:400px 1fr}
-@media(max-width:860px){.app-screen.active{grid-template-columns:1fr}.preview-pane{display:none}}
+
+/* ── Mobile toggle bar ── */
+#mob-view-toggle{display:none}
+@media(max-width:860px){
+  .app-screen.active{grid-template-columns:1fr;margin-top:100px;height:calc(100vh - 100px)}
+  .preview-pane{display:none}
+  .preview-pane.mob-show{display:flex!important;position:fixed;inset:100px 0 0 0;z-index:150;height:calc(100vh - 100px)!important}
+  .app-sidebar.mob-hide{display:none!important}
+  #mob-view-toggle{
+    display:flex;position:fixed;top:58px;left:0;right:0;z-index:199;
+    background:rgba(8,11,20,.97);border-bottom:1px solid var(--border);
+    height:42px;
+  }
+  .mvt-btn{
+    flex:1;border:none;background:transparent;color:var(--muted);
+    font-family:'Heebo',sans-serif;font-size:13px;font-weight:700;
+    cursor:pointer;transition:.2s;border-bottom:2px solid transparent;
+  }
+  .mvt-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(108,99,255,.07)}
+  /* make header buttons wrap nicely on mobile */
+  .app-header{flex-wrap:wrap;height:auto;min-height:58px;padding:8px 12px;gap:6px}
+  .ah-logo{font-size:13px}
+  .ah-btn{padding:6px 10px;font-size:12px}
+  .ah-actions{flex-wrap:wrap;gap:5px}
+  /* sidebar scroll area fill on mobile */
+  .app-sidebar{height:100%}
+  /* login card full width on mobile */
+  .login-card{max-width:100%!important;padding:28px 20px!important}
+  /* welcome screen cards stacked */
+  .wlc-cards-split{grid-template-columns:1fr!important}
+  /* textarea bigger touch area */
+  #map-textarea,#edit-map-textarea{min-height:160px}
+  /* user bar compact on mobile */
+  .user-info-bar{position:relative;top:auto;left:auto;flex-wrap:wrap;padding:8px 12px;width:100%;background:rgba(8,11,20,.6);border-bottom:1px solid var(--border)}
+  .uib-btn{font-size:11px;padding:4px 9px}
+}
 
 /* ═══ SIDEBAR ═══ */
 .app-sidebar{
@@ -867,9 +902,15 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
   </div>
 </header>
 
+<!-- ═══ MOBILE VIEW TOGGLE (only visible on phones) ═══ -->
+<div id="mob-view-toggle">
+  <button class="mvt-btn active" id="mvt-edit" onclick="mobSetView('edit')">✏️ עריכה</button>
+  <button class="mvt-btn" id="mvt-preview" onclick="mobSetView('preview')">👁 תצוגה מקדימה</button>
+</div>
+
 <div class="app-screen" id="screen-build" style="display:none">
   <!-- SIDEBAR -->
-  <div class="app-sidebar">
+  <div class="app-sidebar" id="build-sidebar">
 
     <!-- ── State 1: Input ── -->
     <div id="build-input" class="sb-inner">
@@ -1210,7 +1251,7 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
   </div><!-- /sidebar -->
 
   <!-- PREVIEW -->
-  <div class="preview-pane">
+  <div class="preview-pane" id="build-preview-pane">
     <div class="preview-toolbar">
       <span class="preview-label">👁 תצוגה מקדימה</span>
       <div style="display:flex;gap:4px;align-items:center">
@@ -1407,6 +1448,7 @@ async function doRegister(){
 /* ── Logout ── */
 function doLogout(){
   authClearSession();
+  _showMobToggle(false);
   document.getElementById('screen-welcome').style.display='none';
   document.getElementById('screen-build').style.display='none';
   document.getElementById('screen-admin').style.display='none';
@@ -1488,6 +1530,7 @@ async function loadSavedPage(id,username){
     document.getElementById('btn-save-page').style.display='';
     initSectionsPanel();
     refreshBuildPreview();
+    _showMobToggle(true);
     showToast('📂 הדף "'+page.name+'" נטען!');
   }catch(e){showToast('❌ שגיאה בטעינה');}
 }
@@ -1720,6 +1763,7 @@ function goWelcome(){
   document.getElementById('screen-quiz').classList.remove('qz-active');
   document.getElementById('build-header').style.display='none';
   document.getElementById('edit-header').style.display='none';
+  _showMobToggle(false);
 }
 
 function startBuild(){
@@ -1727,6 +1771,34 @@ function startBuild(){
   document.getElementById('build-header').style.display='flex';
   document.getElementById('screen-build').classList.add('active');
   document.getElementById('screen-build').style.display='';
+  _showMobToggle(true);
+}
+
+/* ── Mobile view toggle ── */
+function _showMobToggle(show){
+  const t=document.getElementById('mob-view-toggle');
+  if(t)t.style.display=show?'':'none';
+  if(show)mobSetView('edit'); // reset to edit tab when entering build
+}
+function mobSetView(view){
+  const sidebar=document.getElementById('build-sidebar');
+  const previewPane=document.getElementById('build-preview-pane');
+  const btnEdit=document.getElementById('mvt-edit');
+  const btnPreview=document.getElementById('mvt-preview');
+  if(!sidebar||!previewPane)return;
+  if(view==='edit'){
+    sidebar.classList.remove('mob-hide');
+    previewPane.classList.remove('mob-show');
+    if(btnEdit)btnEdit.classList.add('active');
+    if(btnPreview)btnPreview.classList.remove('active');
+  } else {
+    sidebar.classList.add('mob-hide');
+    previewPane.classList.add('mob-show');
+    if(btnPreview)btnPreview.classList.add('active');
+    if(btnEdit)btnEdit.classList.remove('active');
+    // Re-render preview so iframe loads fresh on first switch
+    refreshBuildPreview&&refreshBuildPreview();
+  }
 }
 
 function startQuiz(){
@@ -2009,6 +2081,7 @@ async function generateFromMap(){
   document.getElementById('btn-save-page').style.display='';
 
   refreshBuildPreview();
+  _showMobToggle(true);
 }
 
 /* Fill all form fields from AI-generated JSON */
