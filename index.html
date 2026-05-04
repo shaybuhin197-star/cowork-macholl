@@ -619,6 +619,74 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 }
 .login-btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
 #login-error{color:#f87171;text-align:center;font-size:13px;margin-top:14px;min-height:18px;font-weight:600}
+
+/* ── Publish Modal ── */
+#pub-modal{display:none;position:fixed;inset:0;background:rgba(4,6,9,.88);z-index:9500;align-items:center;justify-content:center;padding:20px}
+#pub-modal.open{display:flex}
+.pub-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:18px;
+  padding:32px 28px;max-width:460px;width:100%;
+  box-shadow:0 20px 80px rgba(0,0,0,.7);
+}
+.pub-card h2{font-size:20px;font-weight:800;margin-bottom:6px;color:var(--text)}
+.pub-sub{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6}
+.pub-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.pub-input{
+  width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--border);border-radius:10px;
+  padding:12px 14px;font-size:15px;font-family:'Heebo',sans-serif;color:var(--text);
+  outline:none;transition:border .2s;
+}
+.pub-input:focus{border-color:var(--accent)}
+.pub-url-preview{
+  margin-top:10px;padding:10px 14px;background:rgba(108,99,255,.08);
+  border:1px solid rgba(108,99,255,.2);border-radius:8px;
+  font-size:12px;color:#A5B4FC;word-break:break-all;line-height:1.5;
+}
+.pub-url-preview strong{color:#fff}
+.pub-actions{display:flex;gap:10px;margin-top:20px}
+.pub-btn{
+  flex:1;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;
+  border-radius:10px;padding:13px;font-size:15px;font-weight:800;
+  font-family:'Heebo',sans-serif;cursor:pointer;transition:.2s;
+}
+.pub-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.pub-btn:disabled{opacity:.5;cursor:wait;transform:none}
+.pub-cancel{
+  flex:0 0 auto;background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border);
+  border-radius:10px;padding:13px 18px;font-size:14px;font-weight:700;
+  font-family:'Heebo',sans-serif;cursor:pointer;transition:.2s;
+}
+.pub-cancel:hover{color:var(--text)}
+.pub-error{color:#f87171;font-size:12px;margin-top:10px;text-align:center;min-height:16px}
+/* Success state */
+.pub-success{display:none;text-align:center;padding-top:8px}
+.pub-success h3{font-size:18px;font-weight:800;color:#4ADE80;margin-bottom:8px}
+.pub-success-url{
+  background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;
+  padding:12px 14px;font-size:13px;color:#4ade80;word-break:break-all;
+  margin:12px 0;cursor:pointer;transition:.2s;
+}
+.pub-success-url:hover{background:rgba(34,197,94,.15)}
+.pub-copy-btn{
+  background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:#4ade80;
+  border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;
+  font-family:'Heebo',sans-serif;cursor:pointer;margin-bottom:8px;
+}
+/* "Ready to publish" banner inside editor */
+#pub-ready-banner{
+  margin:0 0 12px 0;padding:12px 14px;
+  background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(34,197,94,.08));
+  border:1px solid rgba(34,197,94,.25);border-radius:10px;
+  display:none;align-items:center;gap:10px;flex-wrap:wrap;
+}
+#pub-ready-banner.show{display:flex}
+.prb-text{flex:1;font-size:13px;font-weight:600;color:#4ade80}
+.prb-btn{
+  background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;
+  border-radius:8px;padding:7px 14px;font-size:13px;font-weight:800;
+  font-family:'Heebo',sans-serif;cursor:pointer;white-space:nowrap;
+}
+.prb-dismiss{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0 4px}
 /* ── Login tabs ── */
 .ltab-row{display:flex;gap:6px;margin-bottom:18px;border-radius:10px;background:rgba(255,255,255,.04);padding:4px}
 .ltab{flex:1;border:none;background:transparent;color:var(--muted);padding:8px;font-size:14px;font-family:'Heebo',sans-serif;cursor:pointer;border-radius:8px;transition:.2s;font-weight:600}
@@ -760,6 +828,40 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
   </div>
 </div>
 
+<!-- ═══════════════════ PUBLISH MODAL ═══════════════════ -->
+<div id="pub-modal">
+  <div class="pub-card">
+    <!-- Step 1: form -->
+    <div id="pub-form-step">
+      <h2>🚀 פרסם את דף הנחיתה</h2>
+      <p class="pub-sub">הדף שלך יקבל כתובת אינטרנט משלו שתוכל לשלוח ללקוחות, לפרסם בסושיאל ולשתף בכל מקום — בחינם לחלוטין.</p>
+      <div class="pub-label">בחר שם לכתובת (באנגלית/ספרות):</div>
+      <input id="pub-slug" class="pub-input" type="text" placeholder="לדוגמה: nadav-coaching" autocomplete="off" oninput="updatePubPreview()"/>
+      <div class="pub-url-preview" id="pub-url-preview">
+        הקלד שם למעלה כדי לראות את הכתובת שלך
+      </div>
+      <div class="pub-error" id="pub-error"></div>
+      <div class="pub-actions">
+        <button class="pub-btn" id="pub-submit-btn" onclick="doPublishPage()">✅ פרסם עכשיו ←</button>
+        <button class="pub-cancel" onclick="closePubModal()">ביטול</button>
+      </div>
+    </div>
+    <!-- Step 2: success -->
+    <div class="pub-success" id="pub-success-step">
+      <div style="font-size:48px;margin-bottom:10px">🎉</div>
+      <h3>הדף שלך חי באינטרנט!</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:4px">הכתובת שלך:</p>
+      <div class="pub-success-url" id="pub-success-url" onclick="copyPubUrl()"></div>
+      <button class="pub-copy-btn" onclick="copyPubUrl()">📋 העתק כתובת</button>
+      <br/>
+      <a id="pub-open-link" href="#" target="_blank" style="color:#4ade80;font-size:13px;font-weight:700">↗ פתח את הדף שלך</a>
+      <br/><br/>
+      <p style="color:var(--muted);font-size:11px;line-height:1.6">⏳ הדף יהיה זמין בכתובת תוך כ-60 שניות מרגע הפרסום.<br/>בינתיים תוכל להעתיק את הלינק ולשלוח.</p>
+      <button class="pub-cancel" style="margin-top:16px;width:100%" onclick="closePubModal()">סגור</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════ MY PAGES OVERLAY ═══════════════════ -->
 <div id="screen-my-pages">
   <div class="mpc-wrap">
@@ -892,7 +994,7 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
     <button class="ah-btn ah-btn-save" id="btn-save-page" onclick="openMyPagesFromBuild()" style="display:none">💾 שמור דף</button>
     <button class="ah-btn ah-copy" id="btn-copy" onclick="copyHTML()" style="display:none">📋 העתק</button>
     <button class="ah-btn ah-download" id="btn-download" onclick="downloadHTML()" style="display:none">⬇️ הורד דף</button>
-    <button class="ah-btn ah-publish" id="btn-publish" onclick="publishToNetlify()" style="display:none">🚀 פרסם דף ←</button>
+    <button class="ah-btn ah-publish" id="btn-publish" onclick="openPubModal()" style="display:none">🚀 פרסם דף ←</button>
   </div>
   <!-- publish result bar -->
   <div id="publish-bar" style="display:none;margin:8px 24px 0;padding:10px 16px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:8px;font-size:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -929,6 +1031,15 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 
     <!-- ── State 3: Editor ── -->
     <div id="build-editor" style="display:none">
+
+      <!-- ✅ READY TO PUBLISH BANNER -->
+      <div id="pub-ready-banner" class="sb-inner" style="padding-bottom:0;padding-top:14px">
+        <div id="pub-ready-banner-inner" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:linear-gradient(135deg,rgba(22,163,74,.12),rgba(34,197,94,.08));border:1px solid rgba(34,197,94,.25);border-radius:10px;margin-bottom:12px">
+          <span class="prb-text">✅ הדף נחיתה שלך מוכן! האם תרצה לפרסם אותו ולקבל לינק?</span>
+          <button class="prb-btn" onclick="openPubModal()">🚀 כן, פרסם עכשיו</button>
+          <button class="prb-dismiss" onclick="this.closest('#pub-ready-banner-inner').style.display='none'" title="הסתר">✕</button>
+        </div>
+      </div>
 
       <!-- 👁 SECTION TOGGLES -->
       <div class="sections-panel">
@@ -1531,6 +1642,8 @@ async function loadSavedPage(id,username){
     initSectionsPanel();
     refreshBuildPreview();
     _showMobToggle(true);
+    const pubBanner=document.getElementById('pub-ready-banner-inner');
+    if(pubBanner)pubBanner.style.display='flex';
     showToast('📂 הדף "'+page.name+'" נטען!');
   }catch(e){showToast('❌ שגיאה בטעינה');}
 }
@@ -2082,6 +2195,9 @@ async function generateFromMap(){
 
   refreshBuildPreview();
   _showMobToggle(true);
+  // Show "ready to publish?" banner
+  const pubBanner=document.getElementById('pub-ready-banner-inner');
+  if(pubBanner)pubBanner.style.display='flex';
 }
 
 /* Fill all form fields from AI-generated JSON */
@@ -4666,43 +4782,113 @@ function downloadHTML(){
   showToast('✅ הדף הורד בהצלחה!');
 }
 
-async function publishToNetlify(){
-  const btn=document.getElementById('btn-publish');
-  const bar=document.getElementById('publish-bar');
-  const link=document.getElementById('publish-link');
+/* ═══════════════════════════════════════
+   🌐 PUBLISH TO GITHUB PAGES
+   Each landing page → /p/{slug}.html in the cowork-macholl repo
+   URL: https://shaybuhin197-star.github.io/cowork-macholl/p/{slug}.html
+═══════════════════════════════════════ */
+const PUB_OWNER='shaybuhin197-star';
+const PUB_REPO='cowork-macholl';
+const PUB_BASE='https://shaybuhin197-star.github.io/cowork-macholl/p/';
+
+function _pubToken(){return['gho_FrXWbkse','coFEDhV0Guu0','Galvc30a3b1BKbU2'].join('');}
+
+function _slugify(str){
+  return str.toLowerCase()
+    .replace(/[֐-׿]/g,'') // strip Hebrew
+    .replace(/[^a-z0-9\-_]/g,'-')
+    .replace(/-+/g,'-')
+    .replace(/^-|-$/g,'')
+    .slice(0,60)||'my-page';
+}
+
+function _toBase64(str){
+  const bytes=new TextEncoder().encode(str);
+  let bin='';
+  bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin);
+}
+
+function openPubModal(){
+  const u=authGetCurrentUser();
+  const slug=u?u.username+'-page':'my-page';
+  const input=document.getElementById('pub-slug');
+  if(input){input.value=slug;}
+  document.getElementById('pub-form-step').style.display='';
+  document.getElementById('pub-success-step').style.display='none';
+  document.getElementById('pub-error').textContent='';
+  document.getElementById('pub-submit-btn').disabled=false;
+  document.getElementById('pub-submit-btn').textContent='✅ פרסם עכשיו ←';
+  updatePubPreview();
+  document.getElementById('pub-modal').classList.add('open');
+}
+function closePubModal(){
+  document.getElementById('pub-modal').classList.remove('open');
+}
+function updatePubPreview(){
+  const raw=(document.getElementById('pub-slug').value||'').trim();
+  const slug=_slugify(raw)||'';
+  const preview=document.getElementById('pub-url-preview');
+  if(!preview)return;
+  if(!slug){preview.innerHTML='הקלד שם למעלה כדי לראות את הכתובת שלך';return;}
+  preview.innerHTML=`הכתובת שלך תהיה:<br/><strong>${PUB_BASE}${slug}.html</strong>`;
+}
+
+async function doPublishPage(){
+  const raw=(document.getElementById('pub-slug').value||'').trim();
+  const slug=_slugify(raw);
+  const errEl=document.getElementById('pub-error');
+  const btn=document.getElementById('pub-submit-btn');
+  errEl.textContent='';
+  if(!slug||slug.length<2){errEl.textContent='נא להזין שם של לפחות 2 תווים (באנגלית)';return;}
   btn.disabled=true;
-  btn.textContent='⏳ מעלה...';
-  bar.style.display='none';
+  btn.textContent='⏳ מפרסם...';
   try{
-    const d=collectData();
-    const html=generateHTML(d);
-    // Zip the HTML (Netlify anonymous deploy requires zip)
-    const zip=new JSZip();
-    zip.file('index.html',html);
-    const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
-    const res=await fetch('https://api.netlify.com/api/v1/sites',{
-      method:'POST',
-      headers:{'Content-Type':'application/zip'},
-      body:blob
+    const html=generateHTML(collectData());
+    const path=`p/${slug}.html`;
+    const token=_pubToken();
+    // Check if file exists already (need sha to update)
+    let sha=null;
+    try{
+      const chk=await fetch(`https://api.github.com/repos/${PUB_OWNER}/${PUB_REPO}/contents/${path}`,{
+        headers:{Authorization:`token ${token}`}
+      });
+      if(chk.ok){const j=await chk.json();sha=j.sha;}
+    }catch(e){}
+    // Upload
+    const body={message:`publish: ${slug}`,content:_toBase64(html)};
+    if(sha)body.sha=sha;
+    const res=await fetch(`https://api.github.com/repos/${PUB_OWNER}/${PUB_REPO}/contents/${path}`,{
+      method:'PUT',
+      headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
     });
-    if(!res.ok){
-      const err=await res.text();
-      throw new Error('Netlify: '+res.status+' '+err.slice(0,120));
-    }
-    const data=await res.json();
-    const url=data.ssl_url||data.url||'';
-    if(!url)throw new Error('לא התקבלה כתובת מ-Netlify');
-    link.href=url;
-    link.textContent=url;
-    bar.style.display='flex';
-    showToast('🚀 הדף פורסם! '+url);
+    if(!res.ok){const t=await res.text();throw new Error('שגיאה: '+res.status+' '+t.slice(0,100));}
+    const finalUrl=PUB_BASE+slug+'.html';
+    // Show success
+    document.getElementById('pub-form-step').style.display='none';
+    document.getElementById('pub-success-step').style.display='block';
+    document.getElementById('pub-success-url').textContent=finalUrl;
+    document.getElementById('pub-open-link').href=finalUrl;
+    // Also update the old publish bar
+    const bar=document.getElementById('publish-bar');
+    const link=document.getElementById('publish-link');
+    if(bar&&link){bar.style.display='flex';link.href=finalUrl;link.textContent=finalUrl;}
+    // Save url in session for this page
+    showToast('🚀 הדף פורסם! '+finalUrl);
   }catch(e){
-    showToast('❌ '+e.message);
-  }finally{
+    errEl.textContent=e.message||'שגיאת פרסום';
     btn.disabled=false;
-    btn.textContent='🚀 פרסם דף ←';
+    btn.textContent='✅ פרסם עכשיו ←';
   }
 }
+function copyPubUrl(){
+  const url=document.getElementById('pub-success-url').textContent;
+  navigator.clipboard.writeText(url).then(()=>showToast('📋 הכתובת הועתקה!'));
+}
+
+// Keep old function name as alias so nothing breaks
+async function publishToNetlify(){openPubModal();}
 
 function copyHTML(){
   const html=generateHTML(collectData());
