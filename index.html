@@ -4707,7 +4707,7 @@ async function sendChatMsg(){
     const ml=msg.toLowerCase();
 
     /* ── 1. LOCAL: הסרת אימוג'ים ── */
-    if(/אימוג|emoji|סמיילי|סמל|אל.?תשתמש.?ב|בלי.?(?:אימוג|סמ)|תסיר.?(?:אימוג|סמ)|להסיר.?(?:אימוג|סמ)/i.test(msg)){
+    if(/אימוג|emoji|סמיילי/i.test(msg)){
       _applyToAllTextFields(_stripEmoji);
       liveUpdate();
       done('✅ הסרתי את כל האימוג\'ים מהדף');
