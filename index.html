@@ -1118,7 +1118,7 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
           <button class="tone-btn" id="tone-miktzoi" onclick="setTone('מקצועי',this)">🎯 מקצועי</button>
         </div>
         <div class="chat-messages" id="chat-messages">
-          <div class="chat-msg ai">היי! תגיד לי מה לשנות ואני מעדכן את הדף מיד.<br>לדוגמה: "תדייק את הכאב", "תעיף את המילה A טכני", "תשנה לעיצוב כהה", "שנה כפתור ל—קבע שיחה ←".</div>
+          <div class="chat-msg ai">תגיד לי מה לשנות — ואני עושה מיד.<br><br>אפשר להגיד בדיוק מה שאתה רוצה, לדוגמה:<br>• "תסיר אימוג'ים מהדף"<br>• "שנה את הכותרת ל: [כותרת חדשה]"<br>• "תהפוך את הטון למקצועי יותר"<br>• "תדייק את הכאבים — פחות כללי"<br>• "שנה עיצוב לסגול"<br>• "שנה את הכפתור ל: קבע שיחה עכשיו"</div>
         </div>
         <div class="chat-input-row">
           <textarea class="chat-input" id="chat-input" placeholder="כתוב כאן מה לשנות..." rows="1"
@@ -4680,109 +4680,161 @@ function _getAllPageFields(){
   return fields;
 }
 
+/* ── Chat helpers ── */
+function _stripEmoji(str){
+  return (str||'').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}⚡✅❌⭐🔥💡🎯📌📍🏆💪🎉🚀✨💎🙌👉👇📞📲📱📋📄🗺️]/gu,'').replace(/\s{2,}/g,' ').trim();
+}
+function _applyToAllTextFields(fn){
+  document.querySelectorAll('#build-editor input[type=text],#build-editor textarea').forEach(el=>{
+    if(el.value)el.value=fn(el.value);
+  });
+}
+
 async function sendChatMsg(){
   const inp=document.getElementById('chat-input');
   const btn=document.getElementById('chat-send-btn');
   const msg=inp.value.trim();
   if(!msg)return;
   inp.value='';
+  inp.style.height='';
   btn.disabled=true;
   chatAddMsg(msg,'user');
-  const thinking=chatAddMsg('⏳ חושב...','ai thinking');
+  const thinking=chatAddMsg('⏳ מעבד...','ai thinking');
+
+  const done=(text)=>{thinking.className='chat-msg ai';thinking.textContent=text;btn.disabled=false;};
 
   try{
-    // זיהוי בקשת עיצוב ישירה — ללא AI
-    const themeMap={'dark-gold':['זהב','gold'],'navy-orange':['כתום','navy','כחול כהה'],'dark-green':['ירוק','green'],'purple':['סגול','purple'],'light-blue':['כחול בהיר','light blue','כחול'],'red-dark':['אדום','red'],'wellness-teal':['טורקיז','teal','בריאות'],'fitness-dark':['כושר','fitness','אפור'],'business-deep':['עסקי','business','כחול כהה'],'luxury-warm':['פרימיום','לוקסוס','luxury','בז'],'ai-violet':['ai','סגול כהה','violet']};
+    const ml=msg.toLowerCase();
+
+    /* ── 1. LOCAL: הסרת אימוג'ים ── */
+    if(/אימוג|emoji|סמיילי|סמל|אל.?תשתמש.?ב|בלי.?(?:אימוג|סמ)|תסיר.?(?:אימוג|סמ)|להסיר.?(?:אימוג|סמ)/i.test(msg)){
+      _applyToAllTextFields(_stripEmoji);
+      liveUpdate();
+      done('✅ הסרתי את כל האימוג\'ים מהדף');
+      return;
+    }
+
+    /* ── 2. LOCAL: שינוי עיצוב ── */
+    const themeMap={
+      'dark-gold':['זהב','gold','שחור זהב'],
+      'navy-orange':['כתום','navy','נייבי'],
+      'dark-green':['ירוק','green','כהה ירוק'],
+      'purple':['סגול','purple','פרפל'],
+      'light-blue':['כחול בהיר','light','תכלת'],
+      'red-dark':['אדום','red','אדום כהה'],
+      'wellness-teal':['טורקיז','teal','בריאות','ירוק כחלחל'],
+      'fitness-dark':['כושר','fitness','אפור','אפור כהה'],
+      'business-deep':['עסקי','business','כחול כהה','נייבי כהה'],
+      'luxury-warm':['פרימיום','לוקסוס','luxury','בז','בז חם'],
+      'ai-violet':['ai','סגול כהה','violet','סגול עמוק'],
+    };
     for(const[th,kws]of Object.entries(themeMap)){
-      if(kws.some(k=>msg.toLowerCase().includes(k))){
+      if(kws.some(k=>ml.includes(k))){
         selectTheme(th);
-        thinking.className='chat-msg ai';
-        thinking.textContent=`✅ שיניתי את העיצוב`;
-        btn.disabled=false;return;
+        done('✅ שיניתי את העיצוב');
+        return;
       }
     }
 
-    // בנה snapshot קצר של השדות הראשיים בלבד
-    const snap={};
-    const mainIds=['f_name','f_tagline','f_hero1','f_hero2','f_hero_sub','f_hero_without',
-      'f_method_name','f_method_desc','f_story','f_pain_title',
-      'f_meeting_title','f_meeting_cta','f_final_cta','f_final_cta_sub','f_urgency'];
-    mainIds.forEach(id=>{
-      const el=document.getElementById(id);
-      if(el&&el.value)snap[id.replace('f_','')]=el.value;
-    });
-    // הוסף גם שדות מערכים עיקריים
-    for(let i=1;i<=Math.min(painC,4);i++){
-      const t=document.getElementById('pain_title_'+i);
-      const d=document.getElementById('pain_desc_'+i);
-      if(t&&t.value)snap['pain_title_'+i]=t.value;
-      if(d&&d.value)snap['pain_desc_'+i]=d.value;
-    }
-    for(let i=1;i<=Math.min(aC,5);i++){const e=document.getElementById('a_item_'+i);if(e&&e.value)snap['a_item_'+i]=e.value;}
-    for(let i=1;i<=Math.min(bC,5);i++){const e=document.getElementById('b_item_'+i);if(e&&e.value)snap['b_item_'+i]=e.value;}
-    for(let i=1;i<=Math.min(testiC,3);i++){
-      const t=document.getElementById('testi_text_'+i);
-      if(t&&t.value)snap['testi_text_'+i]=t.value;
-    }
+    /* ── 3. LOCAL: שינוי טון ── */
+    if(/טון.*(ישיר|direct)/i.test(msg)){setTone('ישיר',document.getElementById('tone-yashar'));done('✅ עברתי לטון ישיר');return;}
+    if(/טון.*(חם|warm|אישי)/i.test(msg)){setTone('חם',document.getElementById('tone-cham'));done('✅ עברתי לטון חם');return;}
+    if(/טון.*(מקצועי|professional|פורמל)/i.test(msg)){setTone('מקצועי',document.getElementById('tone-miktzoi'));done('✅ עברתי לטון מקצועי');return;}
 
-    const snapLines=Object.entries(snap).map(([k,v])=>`${k}: ${v}`).join('\n');
+    /* ── 4. AI: כל שאר הבקשות — עם כל תוכן הדף ── */
+    const d=collectData();
+    const pageSnapshot=`שם/עסק: ${d.name}
+תגית: ${d.tagline}
+כותרת ראשית: ${d.hero1}
+כותרת משנית: ${d.hero2}
+תת-כותרת: ${d.hero_sub}
+ללא: ${d.hero_without}
+סיפור אישי: ${d.story}
+כאבים: ${d.pains.map((p,i)=>`${i+1}. ${p.title} — ${p.desc}`).join(' | ')}
+שיטה/שם: ${d.method_name}
+תיאור שיטה: ${d.method_desc}
+שלבי שיטה: ${d.steps.map((s,i)=>`${i+1}. ${s.title}: ${s.desc}`).join(' | ')}
+מצב A (לפני): ${d.aItems.join(' | ')}
+מצב B (אחרי): ${d.bItems.join(' | ')}
+מתאים לך: ${d.forYou.join(' | ')}
+לא מתאים: ${d.notForYou.join(' | ')}
+המלצות: ${d.testis.map(t=>`"${t.text}" — ${t.name}`).join(' | ')}
+שאלות נפוצות: ${d.faqs.map(f=>`ש: ${f.q} | ת: ${f.a}`).join(' || ')}
+כפתור ראשי: ${d.meeting_cta}
+CTA סופי: ${d.final_cta}
+תת-CTA: ${d.final_cta_sub}
+הצעה (מה מקבלים): ${d.offerItems.join(' | ')}
+מחיר: ${d.price}`;
 
-    const systemPrompt=`אתה עורך דף נחיתה בעברית. ביצע את הבקשה בדיוק.
+    const currentTone=document.querySelector('.tone-btn.active')?.textContent||'ישיר';
+
+    const systemPrompt=`אתה עוזר מקצועי שעורך דפי נחיתה בעברית. אתה מבין בדיוק מה מבקשים ועושה את זה ישר, בלי להסביר, בלי שאלות, בלי להמציא שדות חדשים.
 
 תוכן הדף הנוכחי:
-${snapLines}
+${pageSnapshot}
 
-בקשה: "${msg}"
+טון נוכחי: ${currentTone}
 
-הוראות:
-- מצא את השדות הרלוונטיים מהרשימה
-- שנה רק מה שביקשו
-- אם ביקשו להסיר/למחוק משהו — החזר ערך ריק ""
-- אל תשנה שדות אחרים
+המשתמש מבקש: "${msg}"
 
-החזר JSON בלבד: {"שם_שדה": "ערך חדש"}
-שם השדה חייב להיות בדיוק כמו שמופיע ברשימה (ללא f_ בהתחלה).`;
+הוראות מחייבות:
+1. בצע בדיוק מה שביקשו — לא יותר, לא פחות
+2. שנה רק את השדות הרלוונטיים לבקשה
+3. שמור על השפה העברית ועל הטון הנוכחי (${currentTone})
+4. אם ביקשו למחוק/להסיר — החזר ערך ריק ""
+5. אם ביקשו לשנות סגנון (מקצועי יותר, פחות פורמלי וכו') — כתוב מחדש את כל השדות הרלוונטיים
+
+החזר JSON בלבד במבנה הזה בדיוק (כלול רק שדות שצריך לשנות):
+{
+  "name": "...",
+  "tagline": "...",
+  "hero1": "...",
+  "hero2": "...",
+  "hero_sub": "...",
+  "hero_without": "...",
+  "story": "...",
+  "method_name": "...",
+  "method_desc": "...",
+  "pain_title": "...",
+  "meeting_cta": "...",
+  "final_cta": "...",
+  "final_cta_sub": "...",
+  "pains": [{"icon":"...","title":"...","desc":"..."}],
+  "steps": [{"title":"...","desc":"..."}],
+  "aItems": ["..."],
+  "bItems": ["..."],
+  "forYou": ["..."],
+  "notForYou": ["..."],
+  "testimonials": [{"name":"...","role":"...","text":"..."}],
+  "faqs": [{"q":"...","a":"..."}],
+  "offerItems": ["..."],
+  "theme": "dark-gold|navy-orange|dark-green|purple|light-blue|red-dark|wellness-teal|fitness-dark|business-deep|luxury-warm|ai-violet"
+}`;
 
     const res=await fetch('https://text.pollinations.ai/openai',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'openai',
+        model:'openai-large',
         messages:[{role:'user',content:systemPrompt}],
-        seed:Math.floor(Math.random()*9999),
+        seed:Math.floor(Math.random()*99999),
         jsonMode:true,
       })
     });
-    if(!res.ok)throw new Error('שגיאת רשת '+res.status);
+    if(!res.ok)throw new Error('שגיאת רשת');
     const raw=await res.text();
     const jsonMatch=raw.match(/\{[\s\S]*\}/);
-    if(!jsonMatch)throw new Error('תשובה לא תקינה מה-AI');
+    if(!jsonMatch)throw new Error('תשובה לא תקינה');
     const changes=JSON.parse(jsonMatch[0]);
 
-    // עדכון גמיש — מנסה כל פורמט של ID
-    let changed=0;
-    for(const[key,newVal]of Object.entries(changes)){
-      if(key==='theme'){selectTheme(String(newVal));changed++;continue;}
-      // נסה: key ישיר, עם f_, ובלי f_
-      const ids=[key,'f_'+key,key.replace(/^f_/,'')];
-      let found=false;
-      for(const id of ids){
-        const el=document.getElementById(id);
-        if(el&&el.tagName&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
-          el.value=newVal;changed++;found=true;break;
-        }
-      }
-    }
-
+    // Apply all changes using the full applyAIChanges function
+    applyAIChanges(changes);
     liveUpdate();
-    thinking.className='chat-msg ai';
-    thinking.textContent=changed>0
-      ?`✅ עשיתי`
-      :'⚠️ לא הצלחתי לאתר את השדה — נסה לנסח אחרת';
+    done('✅ עשיתי');
+
   }catch(e){
-    thinking.className='chat-msg ai';
-    thinking.textContent='❌ שגיאת חיבור — נסה שוב';
-    console.error('Chat error:',e);
+    done('❌ שגיאת חיבור — נסה שוב');
+    console.error('Chat:',e);
   }finally{
     btn.disabled=false;
   }
@@ -4792,7 +4844,8 @@ function applyAIChanges(ch){
   // שדות פשוטים (כולם עם prefix f_)
   const simpleFields=['name','tagline','hero1','hero2','hero_sub','hero_without',
     'pain_title','story','method_name','method_desc',
-    'meeting_title','meeting_cta','video_url','final_cta','final_cta_sub','urgency','phone'];
+    'meeting_title','meeting_cta','video_url','final_cta','final_cta_sub',
+    'urgency','phone','price','price_note','offer_btn','og_desc','timer_label'];
   for(const k of simpleFields){
     if(ch[k]!==undefined){
       const el=document.getElementById('f_'+k);
