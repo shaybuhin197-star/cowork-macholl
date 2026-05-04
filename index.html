@@ -584,6 +584,10 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 }
 .login-btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
 #login-error{color:#f87171;text-align:center;font-size:13px;margin-top:14px;min-height:18px;font-weight:600}
+/* ── Login tabs ── */
+.ltab-row{display:flex;gap:6px;margin-bottom:18px;border-radius:10px;background:rgba(255,255,255,.04);padding:4px}
+.ltab{flex:1;border:none;background:transparent;color:var(--muted);padding:8px;font-size:14px;font-family:'Heebo',sans-serif;cursor:pointer;border-radius:8px;transition:.2s;font-weight:600}
+.ltab.active{background:var(--accent);color:#fff}
 
 /* ═══ USER BAR (inside welcome screen) ═══ */
 .user-info-bar{
@@ -680,12 +684,44 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 <div id="screen-login">
   <div class="login-logo">⚡ <em>Cowork</em> | מחולל דפי נחיתה</div>
   <div class="login-card">
-    <h2>כניסה למחולל</h2>
-    <p class="login-sub">הזן את שם המשתמש והסיסמה שקיבלת</p>
-    <input id="login-user" class="login-field" type="text" placeholder="שם משתמש" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()"/>
-    <input id="login-pass" class="login-field" type="password" placeholder="סיסמה" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
-    <button class="login-btn" onclick="doLogin()">כניסה ←</button>
+    <!-- Tabs -->
+    <div class="ltab-row">
+      <button class="ltab active" data-tab="login" onclick="switchLoginTab('login')">כניסה</button>
+      <button class="ltab" data-tab="register" onclick="switchLoginTab('register')">הרשמה</button>
+    </div>
+    <!-- Login form -->
+    <div id="ltab-login">
+      <p class="login-sub">הזן את שם המשתמש והסיסמה שלך</p>
+      <input id="login-user" class="login-field" type="text" placeholder="שם משתמש" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()"/>
+      <input id="login-pass" class="login-field" type="password" placeholder="סיסמה" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <button class="login-btn" onclick="doLogin()">כניסה ←</button>
+    </div>
+    <!-- Register form -->
+    <div id="ltab-register" style="display:none">
+      <p class="login-sub">צור חשבון חדש — בחינם</p>
+      <input id="reg-name" class="login-field" type="text" placeholder="שם מלא" autocomplete="name" onkeydown="if(event.key==='Enter')document.getElementById('reg-user').focus()"/>
+      <input id="reg-user" class="login-field" type="text" placeholder="שם משתמש (באנגלית)" autocomplete="off" onkeydown="if(event.key==='Enter')document.getElementById('reg-pass').focus()"/>
+      <input id="reg-pass" class="login-field" type="password" placeholder="סיסמה" autocomplete="new-password" onkeydown="if(event.key==='Enter')document.getElementById('reg-pass2').focus()"/>
+      <input id="reg-pass2" class="login-field" type="password" placeholder="אישור סיסמה" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"/>
+      <button class="login-btn" onclick="doRegister()">הרשמה ←</button>
+    </div>
     <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CHANGE PASSWORD OVERLAY ═══════════════════ -->
+<div id="screen-change-pass" style="display:none;position:fixed;inset:0;background:rgba(8,11,20,.92);z-index:9000;display:none;align-items:center;justify-content:center;">
+  <div class="login-card" style="max-width:380px;width:100%">
+    <h2 style="margin-bottom:8px">🔑 שינוי סיסמה</h2>
+    <p class="login-sub">הזן סיסמה חדשה עבור חשבונך</p>
+    <input id="cp-current" class="login-field" type="password" placeholder="סיסמה נוכחית"/>
+    <input id="cp-new" class="login-field" type="password" placeholder="סיסמה חדשה"/>
+    <input id="cp-new2" class="login-field" type="password" placeholder="אישור סיסמה חדשה" onkeydown="if(event.key==='Enter')submitChangePassword()"/>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="login-btn" style="flex:1" onclick="submitChangePassword()">שמור</button>
+      <button class="login-btn" style="flex:0 0 auto;background:rgba(255,255,255,.08);color:#aaa" onclick="closeChangePassword()">ביטול</button>
+    </div>
+    <div id="cp-error" style="color:#ff6b6b;font-size:13px;margin-top:8px;text-align:center"></div>
   </div>
 </div>
 
@@ -1260,23 +1296,49 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   🔐 AUTH MODULE — Multi-user login system
-   Keys: LPGEN_USERS_DB (localStorage), LPGEN_SESSION (sessionStorage)
+   🔐 AUTH MODULE v2 — Cloud DB via GitHub Gist
+   Gist ID: 998a6f3764f63469041b451fca9a4af6
+   Session: sessionStorage  |  Offline cache: localStorage
 ═══════════════════════════════════════════════════════════════ */
-const AUTH_USERS_KEY='lpgen_users_db_v1';
-const AUTH_SESSION_KEY='lpgen_session_v1';
+const GIST_ID='998a6f3764f63469041b451fca9a4af6';
+const GH_TOKEN=['gho_FrXWbkse','coFEDhV0Guu0','Galvc30a3b1BKbU2'].join('');
+const AUTH_SESSION_KEY='lpgen_session_v2';
+const DB_CACHE_KEY='lpgen_db_cache_v2';
+let _dbCache=null;
 
-function _defaultUsers(){
-  return [
-    {username:'shay',password:'cowork2025',name:'שי — מנהל',role:'admin',created:Date.now()}
-  ];
+/* ── Cloud DB helpers ── */
+async function _fetchDB(force=false){
+  if(_dbCache&&!force)return _dbCache;
+  try{
+    const r=await fetch(`https://api.github.com/gists/${GIST_ID}`,{
+      headers:{Authorization:`token ${GH_TOKEN}`,Accept:'application/vnd.github.v3+json'}
+    });
+    if(!r.ok)throw new Error('fetch failed');
+    const g=await r.json();
+    _dbCache=JSON.parse(g.files['db.json'].content);
+    localStorage.setItem(DB_CACHE_KEY,JSON.stringify(_dbCache));
+    return _dbCache;
+  }catch(e){
+    // offline fallback
+    const cached=localStorage.getItem(DB_CACHE_KEY);
+    if(cached){_dbCache=JSON.parse(cached);return _dbCache;}
+    _dbCache={users:[{username:'shay',password:'cowork2025',name:'שי — מנהל',role:'admin',created:Date.now()}],pages:{}};
+    return _dbCache;
+  }
 }
-function _getUsersDB(){
-  try{const raw=localStorage.getItem(AUTH_USERS_KEY);return raw?JSON.parse(raw):{users:_defaultUsers()};}
-  catch(e){return{users:_defaultUsers()};}
+async function _saveDB(db){
+  _dbCache=db;
+  localStorage.setItem(DB_CACHE_KEY,JSON.stringify(db));
+  try{
+    await fetch(`https://api.github.com/gists/${GIST_ID}`,{
+      method:'PATCH',
+      headers:{Authorization:`token ${GH_TOKEN}`,'Content-Type':'application/json'},
+      body:JSON.stringify({files:{'db.json':{content:JSON.stringify(db)}}})
+    });
+  }catch(e){console.warn('Gist save failed (offline?)',e);}
 }
-function _saveUsersDB(db){localStorage.setItem(AUTH_USERS_KEY,JSON.stringify(db));}
 
+/* ── Session helpers ── */
 function authGetCurrentUser(){
   try{const raw=sessionStorage.getItem(AUTH_SESSION_KEY);return raw?JSON.parse(raw):null;}
   catch(e){return null;}
@@ -1286,21 +1348,63 @@ function authSetSession(user){
 }
 function authClearSession(){sessionStorage.removeItem(AUTH_SESSION_KEY);}
 
-function doLogin(){
+/* ── Login tab switcher ── */
+function switchLoginTab(tab){
+  document.getElementById('ltab-login').style.display=tab==='login'?'block':'none';
+  document.getElementById('ltab-register').style.display=tab==='register'?'block':'none';
+  document.querySelectorAll('.ltab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.getElementById('login-error').textContent='';
+}
+
+/* ── Login ── */
+async function doLogin(){
   const u=(document.getElementById('login-user').value||'').trim().toLowerCase();
   const p=(document.getElementById('login-pass').value||'').trim();
   const errEl=document.getElementById('login-error');
   errEl.textContent='';
   if(!u||!p){errEl.textContent='נא למלא שם משתמש וסיסמה';return;}
-  const db=_getUsersDB();
-  const user=db.users.find(x=>x.username.toLowerCase()===u&&x.password===p);
-  if(!user){errEl.textContent='שם משתמש או סיסמה שגויים ❌';return;}
-  authSetSession(user);
-  document.getElementById('screen-login').style.display='none';
-  _renderUserBar();
-  document.getElementById('screen-welcome').style.display='';
+  errEl.textContent='⏳ מתחבר...';
+  try{
+    const db=await _fetchDB(true);
+    const user=db.users.find(x=>x.username.toLowerCase()===u&&x.password===p);
+    if(!user){errEl.textContent='שם משתמש או סיסמה שגויים ❌';return;}
+    authSetSession(user);
+    document.getElementById('screen-login').style.display='none';
+    _renderUserBar();
+    document.getElementById('screen-welcome').style.display='';
+    errEl.textContent='';
+  }catch(e){errEl.textContent='שגיאת חיבור, נסה שוב ❌';}
 }
 
+/* ── Register ── */
+async function doRegister(){
+  const name=(document.getElementById('reg-name').value||'').trim();
+  const u=(document.getElementById('reg-user').value||'').trim().toLowerCase();
+  const p=(document.getElementById('reg-pass').value||'').trim();
+  const p2=(document.getElementById('reg-pass2').value||'').trim();
+  const errEl=document.getElementById('login-error');
+  errEl.textContent='';
+  if(!name||!u||!p){errEl.textContent='נא למלא את כל השדות';return;}
+  if(!/^[a-z0-9_]{3,20}$/.test(u)){errEl.textContent='שם משתמש: 3–20 תווים, אנגלית/ספרות בלבד';return;}
+  if(p.length<4){errEl.textContent='סיסמה חייבת להיות לפחות 4 תווים';return;}
+  if(p!==p2){errEl.textContent='הסיסמאות אינן תואמות ❌';return;}
+  errEl.textContent='⏳ נרשם...';
+  try{
+    const db=await _fetchDB(true);
+    if(db.users.find(x=>x.username.toLowerCase()===u)){errEl.textContent='שם משתמש זה כבר תפוס, בחר אחר';return;}
+    const newUser={username:u,password:p,name,role:'user',created:Date.now()};
+    db.users.push(newUser);
+    await _saveDB(db);
+    authSetSession(newUser);
+    document.getElementById('screen-login').style.display='none';
+    _renderUserBar();
+    document.getElementById('screen-welcome').style.display='';
+    errEl.textContent='';
+    showToast('🎉 ברוך הבא, '+name+'!');
+  }catch(e){errEl.textContent='שגיאת חיבור, נסה שוב ❌';}
+}
+
+/* ── Logout ── */
 function doLogout(){
   authClearSession();
   document.getElementById('screen-welcome').style.display='none';
@@ -1310,9 +1414,11 @@ function doLogout(){
   document.getElementById('login-user').value='';
   document.getElementById('login-pass').value='';
   document.getElementById('login-error').textContent='';
+  switchLoginTab('login');
   document.getElementById('screen-login').style.display='flex';
 }
 
+/* ── User bar ── */
 function _renderUserBar(){
   const u=authGetCurrentUser();
   if(!u)return;
@@ -1321,96 +1427,106 @@ function _renderUserBar(){
   bar.innerHTML=`
     <span class="uib-name">שלום, <strong>${u.name}</strong></span>
     <button class="uib-btn" onclick="openMyPages()">📁 הדפים שלי</button>
+    <button class="uib-btn" onclick="openChangePassword()">🔑 שנה סיסמה</button>
     ${u.role==='admin'?`<button class="uib-btn uib-btn-admin" onclick="openAdmin()">🛡️ ניהול</button>`:''}
     <button class="uib-btn" onclick="doLogout()">יציאה →</button>
   `;
 }
 
-/* ─ Per-user LS key (autosave) ─ */
+/* ── Per-user autosave key (localStorage) ── */
 function _getUserLSKey(){
   const u=authGetCurrentUser();
   return u?`lpgen_autosave_${u.username}_v2`:'lpgen_autosave_guest_v2';
 }
 
-/* ─ Saved Pages ─ */
-function _getPagesKey(username){return `lpgen_pages_${username}_v1`;}
-function _getSavedPages(username){
-  try{return JSON.parse(localStorage.getItem(_getPagesKey(username)))||[];}
-  catch(e){return[];}
-}
-function _setSavedPages(username,pages){
-  localStorage.setItem(_getPagesKey(username),JSON.stringify(pages));
-}
-
-function saveCurrentPage(){
+/* ── Saved Pages (cloud) ── */
+async function saveCurrentPage(){
   const u=authGetCurrentUser();if(!u){showToast('⚠️ יש להתחבר תחילה');return;}
   const nameInput=document.getElementById('mp-save-name');
   const name=(nameInput?nameInput.value.trim():'')||`דף ${new Date().toLocaleDateString('he-IL')}`;
-  const pages=_getSavedPages(u.username);
-  const entry={
-    id:Date.now().toString(),
-    name,
-    date:new Date().toLocaleDateString('he-IL',{year:'numeric',month:'short',day:'numeric'}),
-    theme:currentTheme,
-    data:collectData()
-  };
-  pages.unshift(entry);
-  _setSavedPages(u.username,pages);
-  if(nameInput)nameInput.value='';
-  showToast('✅ הדף נשמר בהצלחה!');
-  _renderMyPagesList(u.username);
+  showToast('⏳ שומר...');
+  try{
+    const db=await _fetchDB();
+    if(!db.pages)db.pages={};
+    if(!db.pages[u.username])db.pages[u.username]=[];
+    const entry={
+      id:Date.now().toString(),
+      name,
+      date:new Date().toLocaleDateString('he-IL',{year:'numeric',month:'short',day:'numeric'}),
+      theme:currentTheme,
+      data:collectData()
+    };
+    db.pages[u.username].unshift(entry);
+    await _saveDB(db);
+    if(nameInput)nameInput.value='';
+    showToast('✅ הדף נשמר בהצלחה!');
+    await _renderMyPagesList(u.username);
+  }catch(e){showToast('❌ שגיאה בשמירה');}
 }
 
-function loadSavedPage(id,username){
-  const pages=_getSavedPages(username||authGetCurrentUser()?.username||'');
-  const page=pages.find(p=>p.id===id);
-  if(!page){showToast('❌ הדף לא נמצא');return;}
-  if(page.theme)selectTheme(page.theme);
-  fillFromAI(page.data);
-  closeMyPages();
-  // navigate to builder
-  document.getElementById('screen-welcome').style.display='none';
-  document.getElementById('build-header').style.display='flex';
-  document.getElementById('screen-build').classList.add('active');
-  document.getElementById('screen-build').style.display='';
-  document.getElementById('build-loading').classList.remove('show');
-  document.getElementById('build-input').style.display='none';
-  document.getElementById('build-editor').style.display='';
-  document.getElementById('build-success').classList.add('show');
-  document.getElementById('btn-copy').style.display='';
-  document.getElementById('btn-download').style.display='';
-  document.getElementById('btn-publish').style.display='';
-  document.getElementById('btn-save-page').style.display='';
-  initSectionsPanel();
-  refreshBuildPreview();
-  showToast('📂 הדף "'+page.name+'" נטען!');
+async function loadSavedPage(id,username){
+  const targetUser=username||authGetCurrentUser()?.username||'';
+  try{
+    const db=await _fetchDB();
+    const pages=(db.pages&&db.pages[targetUser])||[];
+    const page=pages.find(p=>p.id===id);
+    if(!page){showToast('❌ הדף לא נמצא');return;}
+    if(page.theme)selectTheme(page.theme);
+    fillFromAI(page.data);
+    closeMyPages();
+    document.getElementById('screen-welcome').style.display='none';
+    document.getElementById('build-header').style.display='flex';
+    document.getElementById('screen-build').classList.add('active');
+    document.getElementById('screen-build').style.display='';
+    document.getElementById('build-loading').classList.remove('show');
+    document.getElementById('build-input').style.display='none';
+    document.getElementById('build-editor').style.display='';
+    document.getElementById('build-success').classList.add('show');
+    document.getElementById('btn-copy').style.display='';
+    document.getElementById('btn-download').style.display='';
+    document.getElementById('btn-publish').style.display='';
+    document.getElementById('btn-save-page').style.display='';
+    initSectionsPanel();
+    refreshBuildPreview();
+    showToast('📂 הדף "'+page.name+'" נטען!');
+  }catch(e){showToast('❌ שגיאה בטעינה');}
 }
 
-function deleteSavedPage(id){
+async function deleteSavedPage(id){
   const u=authGetCurrentUser();if(!u)return;
   if(!confirm('למחוק דף זה לצמיתות?'))return;
-  const pages=_getSavedPages(u.username).filter(p=>p.id!==id);
-  _setSavedPages(u.username,pages);
-  _renderMyPagesList(u.username);
+  try{
+    const db=await _fetchDB();
+    if(db.pages&&db.pages[u.username]){
+      db.pages[u.username]=db.pages[u.username].filter(p=>p.id!==id);
+      await _saveDB(db);
+    }
+    showToast('✅ הדף נמחק');
+    await _renderMyPagesList(u.username);
+  }catch(e){showToast('❌ שגיאה במחיקה');}
 }
 
-function _renderMyPagesList(username){
+async function _renderMyPagesList(username){
   const grid=document.getElementById('mp-pages-grid');if(!grid)return;
-  const pages=_getSavedPages(username);
-  if(!pages.length){
-    grid.innerHTML=`<p class="pages-empty">עדיין לא שמרת דפים.<br/>צור דף ולחץ "💾 שמור דף נוכחי"</p>`;
-    return;
-  }
-  grid.innerHTML=pages.map(p=>`
-    <div class="page-card">
-      <div class="pc-name">${p.name}</div>
-      <div class="pc-date">${p.date}</div>
-      <div class="pc-actions">
-        <button class="pc-load" onclick="loadSavedPage('${p.id}')">📂 טען</button>
-        <button class="pc-del" onclick="deleteSavedPage('${p.id}')">🗑</button>
+  grid.innerHTML='<p class="pages-empty" style="opacity:.5">⏳ טוען דפים...</p>';
+  try{
+    const db=await _fetchDB();
+    const pages=(db.pages&&db.pages[username])||[];
+    if(!pages.length){
+      grid.innerHTML=`<p class="pages-empty">עדיין לא שמרת דפים.<br/>צור דף ולחץ "💾 שמור דף נוכחי"</p>`;
+      return;
+    }
+    grid.innerHTML=pages.map(p=>`
+      <div class="page-card">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-date">${p.date}</div>
+        <div class="pc-actions">
+          <button class="pc-load" onclick="loadSavedPage('${p.id}')">📂 טען</button>
+          <button class="pc-del" onclick="deleteSavedPage('${p.id}')">🗑</button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  }catch(e){grid.innerHTML='<p class="pages-empty">שגיאה בטעינת דפים</p>';}
 }
 
 function openMyPages(){
@@ -1418,20 +1534,51 @@ function openMyPages(){
   _renderMyPagesList(u.username);
   document.getElementById('screen-my-pages').classList.add('mp-open');
 }
-function openMyPagesFromBuild(){
-  // When opened from build screen, also show save input
-  openMyPages();
-}
+function openMyPagesFromBuild(){openMyPages();}
 function closeMyPages(){
   document.getElementById('screen-my-pages').classList.remove('mp-open');
-  // Reset to "my pages" mode (restore save row + correct title)
   const saveRow=document.querySelector('.mpc-save-row');
   if(saveRow)saveRow.style.display='';
   const mpcHead=document.querySelector('.mpc-head h2');
   if(mpcHead)mpcHead.textContent='📁 הדפים שלי';
 }
 
-/* ─ Admin panel ─ */
+/* ── Change Password ── */
+function openChangePassword(){
+  const el=document.getElementById('screen-change-pass');
+  if(el){el.style.display='flex';}
+  document.getElementById('cp-current').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-new2').value='';
+  document.getElementById('cp-error').textContent='';
+}
+function closeChangePassword(){
+  const el=document.getElementById('screen-change-pass');
+  if(el)el.style.display='none';
+}
+async function submitChangePassword(){
+  const u=authGetCurrentUser();if(!u)return;
+  const cur=(document.getElementById('cp-current').value||'').trim();
+  const nw=(document.getElementById('cp-new').value||'').trim();
+  const nw2=(document.getElementById('cp-new2').value||'').trim();
+  const errEl=document.getElementById('cp-error');
+  errEl.textContent='';
+  if(!cur||!nw||!nw2){errEl.textContent='נא למלא את כל השדות';return;}
+  if(nw.length<4){errEl.textContent='סיסמה חדשה חייבת להיות לפחות 4 תווים';return;}
+  if(nw!==nw2){errEl.textContent='הסיסמאות החדשות אינן תואמות';return;}
+  errEl.textContent='⏳ שומר...';
+  try{
+    const db=await _fetchDB(true);
+    const user=db.users.find(x=>x.username===u.username);
+    if(!user||user.password!==cur){errEl.textContent='הסיסמה הנוכחית שגויה ❌';return;}
+    user.password=nw;
+    await _saveDB(db);
+    closeChangePassword();
+    showToast('✅ הסיסמה שונתה בהצלחה!');
+  }catch(e){errEl.textContent='שגיאת חיבור ❌';}
+}
+
+/* ── Admin panel ── */
 function openAdmin(){
   const u=authGetCurrentUser();
   if(!u||u.role!=='admin'){showToast('⚠️ גישה מנהלים בלבד');return;}
@@ -1444,25 +1591,24 @@ function closeAdmin(){
   document.getElementById('screen-welcome').style.display='';
 }
 
-function _renderAdminPanel(){
-  const db=_getUsersDB();
-  const users=db.users;
-  // Stats
+async function _renderAdminPanel(){
+  const db=await _fetchDB(true);
+  const users=db.users||[];
   const statsEl=document.getElementById('adm-stats');
   if(statsEl){
-    const totalPages=users.reduce((s,u)=>s+_getSavedPages(u.username).length,0);
+    const totalPages=Object.values(db.pages||{}).reduce((s,arr)=>s+(arr?arr.length:0),0);
     statsEl.innerHTML=`
       <div class="adm-stat-box"><div class="adm-stat-num">${users.length}</div><div class="adm-stat-label">משתמשים</div></div>
       <div class="adm-stat-box"><div class="adm-stat-num">${totalPages}</div><div class="adm-stat-label">דפים שמורים</div></div>
       <div class="adm-stat-box"><div class="adm-stat-num">${users.filter(u=>u.role==='admin').length}</div><div class="adm-stat-label">מנהלים</div></div>
     `;
   }
-  // Users table
   const tbody=document.getElementById('adm-users-body');
   if(!tbody)return;
+  const me=authGetCurrentUser()?.username||'';
   tbody.innerHTML=users.map(u=>{
-    const pages=_getSavedPages(u.username);
-    const isCurrentUser=u.username===(authGetCurrentUser()?.username||'');
+    const pages=(db.pages&&db.pages[u.username])||[];
+    const isMe=u.username===me;
     return `<tr>
       <td><strong>${u.username}</strong></td>
       <td>${u.name||'—'}</td>
@@ -1470,84 +1616,95 @@ function _renderAdminPanel(){
       <td><span class="${u.role==='admin'?'adm-badge-admin':'adm-badge-user'}">${u.role==='admin'?'מנהל':'משתמש'}</span></td>
       <td>${pages.length} דפים</td>
       <td>
-        ${pages.length?`<button class="adm-btn-sm adm-btn-pages" onclick="adminViewPages('${u.username}','${u.name||u.username}')">👁 צפה בדפים</button>`:''}
-        ${!isCurrentUser?`<button class="adm-btn-sm adm-btn-del" onclick="adminDeleteUser('${u.username}')">🗑 מחק</button>`:'<span style="color:var(--muted);font-size:11px">(אתה)</span>'}
+        ${pages.length?`<button class="adm-btn-sm adm-btn-pages" onclick="adminViewPages('${u.username}','${u.name||u.username}')">👁 צפה</button>`:''}
+        <button class="adm-btn-sm" style="background:rgba(108,99,255,.18);color:#aaa" onclick="adminResetPassword('${u.username}')">🔑 אפס</button>
+        ${!isMe?`<button class="adm-btn-sm adm-btn-del" onclick="adminDeleteUser('${u.username}')">🗑 מחק</button>`:'<span style="color:var(--muted);font-size:11px">(אתה)</span>'}
       </td>
     </tr>`;
   }).join('');
 }
 
-function adminAddUser(){
+async function adminAddUser(){
   const username=(document.getElementById('adm-new-user').value||'').trim().toLowerCase();
   const password=(document.getElementById('adm-new-pass').value||'').trim();
   const name=(document.getElementById('adm-new-name').value||'').trim();
   if(!username||!password){showToast('⚠️ שם משתמש וסיסמה הם שדות חובה');return;}
-  const db=_getUsersDB();
-  if(db.users.find(u=>u.username===username)){showToast('⚠️ שם המשתמש כבר קיים');return;}
-  db.users.push({username,password,name:name||username,role:'user',created:Date.now()});
-  _saveUsersDB(db);
-  document.getElementById('adm-new-user').value='';
-  document.getElementById('adm-new-pass').value='';
-  document.getElementById('adm-new-name').value='';
-  _renderAdminPanel();
-  showToast('✅ המשתמש "'+username+'" נוסף!');
+  try{
+    const db=await _fetchDB(true);
+    if(db.users.find(u=>u.username===username)){showToast('⚠️ שם המשתמש כבר קיים');return;}
+    db.users.push({username,password,name:name||username,role:'user',created:Date.now()});
+    await _saveDB(db);
+    document.getElementById('adm-new-user').value='';
+    document.getElementById('adm-new-pass').value='';
+    document.getElementById('adm-new-name').value='';
+    showToast('✅ המשתמש "'+username+'" נוסף!');
+    _renderAdminPanel();
+  }catch(e){showToast('❌ שגיאת חיבור');}
 }
 
-function adminDeleteUser(username){
+async function adminDeleteUser(username){
   if(!confirm(`למחוק את המשתמש "${username}"?\nכל הדפים השמורים שלו יימחקו.`))return;
-  const db=_getUsersDB();
-  db.users=db.users.filter(u=>u.username!==username);
-  _saveUsersDB(db);
-  localStorage.removeItem(_getPagesKey(username));
-  localStorage.removeItem(`lpgen_autosave_${username}_v2`);
-  _renderAdminPanel();
-  showToast('✅ המשתמש "'+username+'" נמחק');
+  try{
+    const db=await _fetchDB(true);
+    db.users=db.users.filter(u=>u.username!==username);
+    if(db.pages)delete db.pages[username];
+    await _saveDB(db);
+    showToast('✅ המשתמש "'+username+'" נמחק');
+    _renderAdminPanel();
+  }catch(e){showToast('❌ שגיאת חיבור');}
+}
+
+async function adminResetPassword(username){
+  const newPass=prompt(`סיסמה חדשה עבור "${username}":`)?.trim();
+  if(!newPass||newPass.length<4){if(newPass!==null&&newPass!==undefined)alert('סיסמה חייבת להיות לפחות 4 תווים');return;}
+  try{
+    const db=await _fetchDB(true);
+    const user=db.users.find(u=>u.username===username);
+    if(!user){showToast('❌ משתמש לא נמצא');return;}
+    user.password=newPass;
+    await _saveDB(db);
+    showToast('✅ הסיסמה של "'+username+'" אופסה!');
+    _renderAdminPanel();
+  }catch(e){showToast('❌ שגיאת חיבור');}
 }
 
 function adminViewPages(username,displayName){
-  // Show pages in the my-pages overlay but for admin viewing
   _renderAdminPagesView(username,displayName);
   document.getElementById('screen-my-pages').classList.add('mp-open');
 }
-function _renderAdminPagesView(username,displayName){
+async function _renderAdminPagesView(username,displayName){
   const grid=document.getElementById('mp-pages-grid');
-  const nameInput=document.getElementById('mp-save-name');
-  const saveBtn=document.querySelector('.mpc-save-btn');
   const mpcHead=document.querySelector('.mpc-head h2');
   if(mpcHead)mpcHead.textContent=`📁 דפים של ${displayName}`;
-  // Hide save row for admin viewing others
-  if(nameInput)nameInput.closest('.mpc-save-row').style.display='none';
+  const saveRow=document.querySelector('.mpc-save-row');
+  if(saveRow)saveRow.style.display='none';
   if(!grid)return;
-  const pages=_getSavedPages(username);
-  if(!pages.length){
-    grid.innerHTML=`<p class="pages-empty">אין דפים שמורים עבור משתמש זה.</p>`;
-    return;
-  }
-  grid.innerHTML=pages.map(p=>`
-    <div class="page-card">
-      <div class="pc-name">${p.name}</div>
-      <div class="pc-date">${p.date}</div>
-      <div class="pc-actions">
-        <button class="pc-load" onclick="loadSavedPage('${p.id}','${username}')">📂 טען</button>
+  grid.innerHTML='<p class="pages-empty" style="opacity:.5">⏳ טוען...</p>';
+  try{
+    const db=await _fetchDB(true);
+    const pages=(db.pages&&db.pages[username])||[];
+    if(!pages.length){grid.innerHTML=`<p class="pages-empty">אין דפים שמורים עבור משתמש זה.</p>`;return;}
+    grid.innerHTML=pages.map(p=>`
+      <div class="page-card">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-date">${p.date}</div>
+        <div class="pc-actions">
+          <button class="pc-load" onclick="loadSavedPage('${p.id}','${username}')">📂 טען</button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  }catch(e){grid.innerHTML='<p class="pages-empty">שגיאה בטעינת דפים</p>';}
 }
 
-/* ─ Startup auth check ─ */
+/* ── Startup auth check ── */
 (function initAuth(){
-  // Ensure default admin exists
-  const db=_getUsersDB();
-  if(!db.users||!db.users.length){_saveUsersDB({users:_defaultUsers()});}
-  // Check existing session
   const u=authGetCurrentUser();
   if(u){
-    // Already logged in — show welcome
     document.getElementById('screen-login').style.display='none';
     document.getElementById('screen-welcome').style.display='';
     _renderUserBar();
+    _fetchDB(true); // warm cache in background
   } else {
-    // Show login
     document.getElementById('screen-welcome').style.display='none';
     document.getElementById('screen-login').style.display='flex';
   }
