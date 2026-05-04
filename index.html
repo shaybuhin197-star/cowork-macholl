@@ -338,6 +338,21 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
 }
 .add-btn:hover{border-color:var(--accent);background:rgba(108,99,255,.08)}
 
+/* ═══ Template picker ═══ */
+.tpl-section-label{font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.tpl-card{
+  border:2px solid var(--border);border-radius:10px;padding:8px 6px;
+  cursor:pointer;transition:.15s;text-align:center;position:relative;overflow:hidden;
+  background:rgba(255,255,255,.03);
+}
+.tpl-card:hover{border-color:var(--accent);background:rgba(129,140,248,.06)}
+.tpl-card.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(129,140,248,.2);background:rgba(129,140,248,.07)}
+.tpl-card.active::after{content:'✓';position:absolute;top:4px;left:5px;font-size:9px;font-weight:900;color:var(--accent);background:rgba(129,140,248,.2);width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:16px}
+.tpl-thumb{width:100%;aspect-ratio:4/3;border-radius:6px;overflow:hidden;margin-bottom:6px;background:rgba(255,255,255,.04)}
+.tpl-thumb svg{width:100%;height:100%}
+.tpl-name{font-size:10px;font-weight:700;color:var(--text);line-height:1.2}
+
 /* Theme swatches */
 .swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .swatch{
@@ -1134,6 +1149,129 @@ body{font-family:'Heebo',sans-serif;color:var(--text);overflow-x:hidden;backgrou
           <span class="acc-arrow">▾</span>
         </button>
         <div class="acc-body">
+
+          <!-- Template picker -->
+          <div class="tpl-section-label">בחר תבנית לדף</div>
+          <div class="tpl-grid" id="tpl-grid">
+
+            <!-- 0: Dark Pro (centered) -->
+            <div class="tpl-card active" data-layout="0" onclick="selectTemplate(0)" title="Dark Pro — מרוכז, קלאסי, מקצועי">
+              <div class="tpl-thumb">
+                <svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="80" height="60" fill="#0D0E12"/>
+                  <rect x="20" y="8" width="40" height="5" rx="2" fill="#C9A84C" opacity=".9"/>
+                  <rect x="14" y="15" width="52" height="3" rx="1.5" fill="#fff" opacity=".7"/>
+                  <rect x="22" y="20" width="36" height="2" rx="1" fill="#fff" opacity=".35"/>
+                  <rect x="28" y="26" width="24" height="6" rx="3" fill="#C9A84C"/>
+                  <rect x="8" y="38" width="19" height="12" rx="3" fill="#1a1c24"/>
+                  <rect x="30" y="38" width="19" height="12" rx="3" fill="#1a1c24"/>
+                  <rect x="52" y="38" width="19" height="12" rx="3" fill="#1a1c24"/>
+                </svg>
+              </div>
+              <div class="tpl-name">Dark Pro</div>
+            </div>
+
+            <!-- 1: Bold Left -->
+            <div class="tpl-card" data-layout="1" onclick="selectTemplate(1)" title="Bold Left — כותרת שמאלית עם בר צד">
+              <div class="tpl-thumb">
+                <svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="80" height="60" fill="#0D0E12"/>
+                  <rect x="6" y="8" width="4" height="40" rx="2" fill="#C9A84C"/>
+                  <rect x="14" y="10" width="36" height="6" rx="2" fill="#fff" opacity=".85"/>
+                  <rect x="14" y="18" width="26" height="3" rx="1.5" fill="#C9A84C" opacity=".7"/>
+                  <rect x="14" y="23" width="42" height="2" rx="1" fill="#fff" opacity=".3"/>
+                  <rect x="14" y="27" width="38" height="2" rx="1" fill="#fff" opacity=".25"/>
+                  <rect x="14" y="33" width="22" height="6" rx="3" fill="#C9A84C"/>
+                  <rect x="8" y="44" width="64" height="1" fill="#fff" opacity=".1"/>
+                  <rect x="8" y="47" width="50" height="2" rx="1" fill="#fff" opacity=".2"/>
+                  <rect x="8" y="51" width="40" height="2" rx="1" fill="#fff" opacity=".15"/>
+                </svg>
+              </div>
+              <div class="tpl-name">Bold Left</div>
+            </div>
+
+            <!-- 2: Gradient Premium -->
+            <div class="tpl-card" data-layout="2" onclick="selectTemplate(2)" title="Gradient Premium — גרדיאנט עשיר, כרטיסי זכוכית">
+              <div class="tpl-thumb">
+                <svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+                  <defs><linearGradient id="grd2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9A84C"/><stop offset="1" stop-color="#1a1c24"/></linearGradient></defs>
+                  <rect width="80" height="60" fill="url(#grd2)"/>
+                  <rect x="20" y="10" width="40" height="4" rx="2" fill="#fff" opacity=".9"/>
+                  <rect x="25" y="16" width="30" height="2.5" rx="1.2" fill="#fff" opacity=".55"/>
+                  <rect x="28" y="22" width="24" height="6" rx="3" fill="#fff" opacity=".95"/>
+                  <rect x="5" y="36" width="22" height="16" rx="4" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+                  <rect x="29" y="36" width="22" height="16" rx="4" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+                  <rect x="53" y="36" width="22" height="16" rx="4" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+                </svg>
+              </div>
+              <div class="tpl-name">Gradient</div>
+            </div>
+
+            <!-- 3: Minimal Type -->
+            <div class="tpl-card" data-layout="3" onclick="selectTemplate(3)" title="Minimal Type — נקי, אוורירי, פונטים בולטים">
+              <div class="tpl-thumb">
+                <svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="80" height="60" fill="#0D0E12"/>
+                  <rect x="32" y="6" width="16" height="3" rx="1.5" fill="#C9A84C"/>
+                  <rect x="10" y="12" width="60" height="7" rx="2" fill="#fff" opacity=".8"/>
+                  <rect x="16" y="21" width="48" height="2" rx="1" fill="#fff" opacity=".3"/>
+                  <rect x="20" y="25" width="40" height="2" rx="1" fill="#fff" opacity=".2"/>
+                  <rect x="30" y="31" width="20" height="5" rx="2.5" fill="#C9A84C" opacity=".85"/>
+                  <rect x="8" y="41" width="64" height="1" fill="#fff" opacity=".08"/>
+                  <rect x="8" y="44" width="64" height="1" fill="#fff" opacity=".08"/>
+                  <rect x="8" y="47" width="64" height="1" fill="#fff" opacity=".08"/>
+                  <rect x="8" y="50" width="64" height="1" fill="#fff" opacity=".08"/>
+                </svg>
+              </div>
+              <div class="tpl-name">Minimal</div>
+            </div>
+
+            <!-- 4: Split Screen -->
+            <div class="tpl-card" data-layout="4" onclick="selectTemplate(4)" title="Split Screen — הירו מחולק, תוכן שמאל ותמונה ימין">
+              <div class="tpl-thumb">
+                <svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="80" height="60" fill="#0D0E12"/>
+                  <rect x="0" y="0" width="44" height="33" fill="#111320"/>
+                  <rect x="44" y="0" width="36" height="33" fill="#1a1c2e"/>
+                  <rect x="4" y="6" width="14" height="2.5" rx="1.2" fill="#C9A84C" opacity=".8"/>
+                  <rect x="4" y="11" width="36" height="5" rx="2" fill="#fff" opacity=".75"/>
+                  <rect x="4" y="18" width="30" height="2" rx="1" fill="#fff" opacity=".3"/>
+                  <rect x="4" y="22" width="26" height="6" rx="3" fill="#C9A84C"/>
+                  <!-- right panel decorative -->
+                  <circle cx="62" cy="16" r="10" fill="rgba(201,168,76,.15)" stroke="rgba(201,168,76,.3)" stroke-width="1"/>
+                  <rect x="52" y="12" width="20" height="8" rx="3" fill="rgba(255,255,255,.07)"/>
+                  <!-- bottom cards -->
+                  <rect x="4" y="38" width="22" height="14" rx="3" fill="#1a1c24"/>
+                  <rect x="29" y="38" width="22" height="14" rx="3" fill="#1a1c24"/>
+                  <rect x="54" y="38" width="22" height="14" rx="3" fill="#1a1c24"/>
+                </svg>
+              </div>
+              <div class="tpl-name">Split Screen</div>
+            </div>
+
+            <!-- 5: Magazine Impact -->
+            <div class="tpl-card" data-layout="5" onclick="selectTemplate(5)" title="Magazine — עוצמתי, גדול, עיתונאי">
+              <div class="tpl-thumb">
+                <svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="80" height="60" fill="#050507"/>
+                  <rect x="0" y="0" width="80" height="32" fill="#0f0f18"/>
+                  <rect x="4" y="4" width="72" height="1" fill="#C9A84C" opacity=".6"/>
+                  <rect x="4" y="8" width="55" height="10" rx="2" fill="#fff" opacity=".88"/>
+                  <rect x="4" y="20" width="42" height="5" rx="2" fill="#C9A84C"/>
+                  <rect x="4" y="27" width="60" height="2" rx="1" fill="#fff" opacity=".25"/>
+                  <rect x="4" y="34" width="72" height="1" fill="#fff" opacity=".08"/>
+                  <rect x="4" y="37" width="22" height="3" rx="1.5" fill="#fff" opacity=".5"/>
+                  <rect x="4" y="42" width="72" height="1" fill="#fff" opacity=".07"/>
+                  <rect x="4" y="45" width="22" height="3" rx="1.5" fill="#fff" opacity=".4"/>
+                  <rect x="4" y="50" width="72" height="1" fill="#fff" opacity=".07"/>
+                  <rect x="4" y="53" width="22" height="3" rx="1.5" fill="#fff" opacity=".35"/>
+                </svg>
+              </div>
+              <div class="tpl-name">Magazine</div>
+            </div>
+
+          </div>
+
           <div class="swatches">
             <div class="swatch sel" data-theme="dark-gold" onclick="selectTheme('dark-gold')">
               <div class="swatch-bg" style="background:linear-gradient(135deg,#0D0E12,#222636)"></div>
@@ -2384,6 +2522,12 @@ function fillFromAI(d){
     if(rl)rl.value=t.role||'';
   });
 
+  // Layout template
+  if(typeof d.layout==='number'&&d.layout>=0){
+    _selectedLayout=d.layout;
+    document.querySelectorAll('.tpl-card').forEach(c=>c.classList.toggle('active',+c.dataset.layout===d.layout));
+  }
+
   // FAQs
   (d.faqs||[]).slice(0,5).forEach(f=>{
     addFaq();const i=faqC;
@@ -2687,6 +2831,13 @@ const themes={
   'ai-violet':    {primary:'#7C3AED',bg:'#030010',bg2:'#0F0A22',bg3:'#1C1649',text:'#F5F3FF',muted:'#C4B5FD',green:'#34D399',red:'#F87171',font:'heebo'},
 };
 let currentTheme='dark-gold';
+let _selectedLayout=null; // null = auto-assign by hash; 0-5 = user pick
+
+function selectTemplate(n){
+  _selectedLayout=n;
+  document.querySelectorAll('.tpl-card').forEach(c=>c.classList.toggle('active',+c.dataset.layout===n));
+  liveUpdate();
+}
 
 function selectTheme(name){
   currentTheme=name;
@@ -2948,6 +3099,7 @@ function collectData(){
     ty_video:v('f_ty_video')||'',
     ty_btn:v('f_ty_btn')||'לחץ לקביעת פגישה עכשיו ←',
     calendar_url:v('f_calendar_url')||'',
+    layout: _selectedLayout,
   };
 }
 
@@ -2955,7 +3107,8 @@ function collectData(){
    GENERATE HTML (engine) — 4 visual layouts
 ═══════════════════════════════════════ */
 function _layoutHash(d){
-  // Deterministic 0-3 based on name+hero1 so same client = same layout, different clients differ
+  // User override takes priority; fallback to deterministic hash
+  if(typeof _selectedLayout==='number'&&_selectedLayout>=0)return _selectedLayout;
   const s=(d.name||'')+(d.hero1||'');
   let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;
   return h%4;
@@ -3305,8 +3458,208 @@ body{font-family:'Heebo',sans-serif;letter-spacing:-.01em}
   </div>${sec('stats')?statsHTML:''}
 </div></section>`;
 
-  const heroHTML=[hero0,hero1,hero2,hero3][LV];
-  const layoutOverrideCSS=[''  ,cssLayout1,cssLayout2,cssLayout3][LV];
+  // Layout 4: "Split Screen" — hero splits: text left / visual right, sections alternate bg
+  const cssLayout4=LV!==4?'':/* css */`
+.hero{background:var(--bg);min-height:100vh;display:flex;align-items:stretch;padding:0}
+.hero::before{display:none}
+.hero-inner{
+  max-width:none;width:100%;margin:0;padding:0;
+  display:grid;grid-template-columns:1fr 1fr;min-height:100vh;
+}
+.hero-left{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:80px 48px 60px 40px;text-align:right;
+}
+.hero-right{
+  background:linear-gradient(160deg,rgba(var(--primary-rgb),.12) 0%,var(--bg2) 100%);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.hero-right::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 60% 50%,rgba(var(--primary-rgb),.18) 0%,transparent 70%);
+}
+.hero-right-number{
+  font-size:clamp(80px,12vw,160px);font-weight:900;letter-spacing:-.06em;
+  color:var(--primary);opacity:.15;line-height:1;user-select:none;position:absolute;
+}
+.hero-right-inner{
+  position:relative;z-index:1;text-align:center;padding:40px;
+}
+.hero-right-inner .hero-stat{margin:0 auto;flex-direction:column;align-items:center;max-width:180px;
+  background:rgba(var(--primary-rgb),.07);border:1px solid rgba(var(--primary-rgb),.2);
+  border-radius:16px;padding:20px 16px;
+}
+.hero-right-inner .stat-num{font-size:40px;font-weight:900;color:var(--primary);margin-bottom:4px}
+.hero-right-inner .stat-lbl{font-size:13px;color:var(--muted)}
+.hero-tag{margin-bottom:20px;display:inline-flex}
+.hero-title{font-size:clamp(32px,4.5vw,58px);font-weight:900;line-height:1.08;letter-spacing:-.035em;margin-bottom:20px}
+.hero-title .highlight{display:block;font-size:.75em;color:var(--primary)}
+.hero-sub{font-size:16px;color:var(--muted);line-height:1.85;max-width:440px;margin-bottom:24px}
+.hero-cta-wrap{justify-content:flex-start;gap:16px}
+.hero-stats{display:none}
+@media(max-width:760px){
+  .hero-inner{grid-template-columns:1fr}
+  .hero-right{display:none}
+  .hero-left{padding:80px 24px 60px}
+}
+/* alternating section bg */
+.sec:nth-child(even){background:var(--bg2)}
+/* pain as 2-col cards */
+.pain-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.pain-grid{grid-template-columns:1fr}}
+`;
+
+  const hero4=`<section class="hero"><div class="hero-inner">
+  <div class="hero-left">
+    ${sec('tagline')&&d.tagline?`<div class="hero-tag">${esc(d.tagline)}</div>`:''}
+    <h1 class="hero-title fade-up">${esc(d.hero1)}<span class="highlight">${esc(d.hero2)}</span></h1>
+    ${d.hero_sub?`<p class="hero-sub fade-up">${esc(d.hero_sub)}</p>`:''}
+    ${withoutsHTML}
+    <div class="hero-cta-wrap fade-up">
+      <button onclick="showThankYou()" class="btn-primary" style="border:none;cursor:pointer">${meetingCta}</button>
+      <span class="hero-free-note">ללא עלות · ללא מחויבות</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-number">${(d.stat1_num||'01').replace(/[^0-9+%k+]/gi,'').slice(0,4)||'+'}</div>
+    <div class="hero-right-inner">
+      ${d.stat1_num?`<div class="hero-stat"><div class="stat-num">${esc(d.stat1_num)}</div><div class="stat-lbl">${esc(d.stat1_label)}</div></div>`:''}
+      ${d.stat2_num?`<div class="hero-stat" style="margin-top:16px"><div class="stat-num">${esc(d.stat2_num)}</div><div class="stat-lbl">${esc(d.stat2_label)}</div></div>`:''}
+    </div>
+  </div>
+</div></section>`;
+
+  // Layout 5: "Magazine Impact" — full editorial, oversized text, horizontal dividers
+  const cssLayout5=LV!==5?'':/* css */`
+body{font-size:16px;letter-spacing:-.01em}
+.hero{
+  background:var(--bg);min-height:100vh;padding-top:60px;
+  display:flex;align-items:flex-end;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.7) 100%);
+  z-index:1;
+}
+.hero::after{
+  content:attr(data-bg-text);
+  position:absolute;top:-30px;right:-20px;
+  font-size:clamp(200px,30vw,360px);font-weight:900;
+  color:rgba(var(--primary-rgb),.04);line-height:1;
+  pointer-events:none;z-index:0;letter-spacing:-.08em;
+  white-space:nowrap;overflow:hidden;max-width:100%;
+}
+.hero-inner{
+  position:relative;z-index:2;
+  width:100%;max-width:none;margin:0;
+  padding:60px 40px 80px;
+  border-top:3px solid var(--primary);
+}
+.hero-tag{
+  font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--primary);
+  text-transform:uppercase;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-tag::before{content:'';display:block;width:32px;height:2px;background:var(--primary)}
+.hero-title{
+  font-size:clamp(38px,7vw,96px);font-weight:900;line-height:.95;
+  letter-spacing:-.05em;margin-bottom:24px;max-width:900px;
+}
+.hero-title .highlight{
+  color:var(--primary);display:inline;
+  -webkit-text-stroke:1px var(--primary);
+}
+.hero-sub{
+  font-size:18px;color:var(--muted);line-height:1.8;
+  max-width:600px;margin-bottom:32px;border-right:3px solid var(--primary);padding-right:16px;
+}
+.hero-cta-wrap{gap:20px;justify-content:flex-start}
+.without-row{justify-content:flex-start;margin-bottom:24px}
+.hero-stats{
+  border-top:1px solid var(--border);margin-top:40px;padding-top:28px;
+  display:flex;gap:40px;justify-content:flex-start;
+}
+.hero-stat{border-right:none;padding-right:0;border-left:1px solid var(--border);padding-left:24px}
+.hero-stat:first-child{border-left:none;padding-left:0}
+/* section: numbered editorial style */
+.sec{padding:80px 0;position:relative}
+.sec::before{
+  content:none;
+}
+.badge{display:none}
+.sec-title{
+  font-size:clamp(28px,4vw,52px);font-weight:900;letter-spacing:-.04em;
+  line-height:1.05;margin-bottom:24px;
+}
+/* pain: full-width numbered list */
+.pain-grid{
+  display:flex;flex-direction:column;gap:0;
+  border-top:1px solid var(--border);
+}
+.pain-card{
+  display:grid;grid-template-columns:80px 1fr;gap:24px;
+  background:none;border:none;border-bottom:1px solid var(--border);
+  border-radius:0;padding:28px 0;
+  align-items:start;
+}
+.pain-card:hover{transform:none;background:rgba(255,255,255,.015)}
+.pain-icon{font-size:32px;line-height:1}
+.pain-card h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.pain-card p{font-size:14px;color:var(--muted);line-height:1.75}
+/* testimonials: oversized quote */
+.testi-grid{display:flex;flex-direction:column;gap:0}
+.testi-card{
+  background:none;border:none;border-bottom:1px solid var(--border);border-radius:0;
+  padding:48px 0;
+}
+.testi-stars{letter-spacing:4px;margin-bottom:16px;font-size:13px}
+.testi-text{
+  font-size:clamp(18px,2.5vw,26px);font-weight:500;
+  color:var(--text);line-height:1.65;margin-bottom:20px;
+  position:relative;
+}
+.testi-text::before{
+  content:'"';position:absolute;right:-20px;top:-30px;
+  font-size:120px;color:var(--primary);opacity:.15;line-height:1;
+  font-family:Georgia,serif;
+}
+.testi-foot{border-top:none;padding-top:0}
+.testi-av{background:transparent;border:2px solid var(--primary);color:var(--primary);font-size:14px}
+/* CTA section: editorial close */
+.cta-section{
+  border-top:3px solid var(--primary);
+  background:var(--bg2);
+}
+/* steps: inline numbered */
+.steps-grid{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border)}
+.step{
+  display:grid;grid-template-columns:60px 1fr;gap:20px;
+  background:none;border:none;border-bottom:1px solid var(--border);border-radius:0;
+  padding:24px 0;align-items:start;
+}
+.step-num{
+  font-size:28px;font-weight:900;color:var(--primary);
+  border-right:2px solid var(--primary);padding-right:16px;line-height:1.4;
+}
+.step h3{font-size:17px;font-weight:800;margin-bottom:6px}
+.step p{font-size:13px;color:var(--muted)}
+`;
+
+  const hero5=`<section class="hero" data-bg-text="${(d.name||'').slice(0,4).toUpperCase()}"><div class="hero-inner">
+  ${sec('tagline')&&d.tagline?`<div class="hero-tag">${esc(d.tagline)}</div>`:''}
+  <h1 class="hero-title fade-up">${esc(d.hero1)}<br/><span class="highlight">${esc(d.hero2)}</span></h1>
+  ${d.hero_sub?`<p class="hero-sub fade-up">${esc(d.hero_sub)}</p>`:''}
+  ${withoutsHTML}
+  <div class="hero-cta-wrap fade-up">
+    <button onclick="showThankYou()" class="btn-primary" style="border:none;cursor:pointer">${meetingCta}</button>
+    <span class="hero-free-note">ללא עלות · ללא מחויבות</span>
+  </div>${sec('stats')?statsHTML:''}
+</div></section>`;
+
+  const heroHTML=[hero0,hero1,hero2,hero3,hero4,hero5][LV]||hero0;
+  const layoutOverrideCSS=[''  ,cssLayout1,cssLayout2,cssLayout3,cssLayout4,cssLayout5][LV]||'';
 
   // Layout 3 adds a stripe helper to each section
   const stripe=LV===3?'<span class="sec-stripe"></span>':'';
